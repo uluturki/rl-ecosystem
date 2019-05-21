@@ -31,7 +31,7 @@ with open(log_file)as fin:
 
 
 #st =5000
-st =500
+st = 0
 #ed = len(predator_num)
 #st = 12000
 #ed = 20000
