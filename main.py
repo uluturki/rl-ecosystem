@@ -7,50 +7,62 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from models.QNet import QNet
 from agents.DQN import DQN
+#from agents.DDQN import DDQN
 import argparse
 import cv2
 import json
+import click
 
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import shutil
 
-argparser = argparse.ArgumentParser()
+def read_yaml(path):
+    f = open(path)
+    return AttrDict(yaml.load(f))
 
-'''
-Training arguments
-'''
-argparser.add_argument('--time_step', type=int, default=10)
-argparser.add_argument('--epochs', type=int, default=100)
-argparser.add_argument('--experiment_num', type=int, default=0)
+def save_config(params, experiment_id):
+    config_dir = os.path.join('./results', 'exp_{:d}'.format(experiment_id))
+    try:
+        os.makedirs(config_dir)
+    except:
+        shutil.rmtree(config_dir)
+        os.makedirs(config_dir)
 
-argv = argparser.parse_args()
-
-
-
-args = {'predator_num': 500, 'prey_num': 250, 'num_actions': 4, 'height':500, 'damage_per_step': 0.01, 'img_length': 5, 'max_hunt_square': 3, 'max_speed': 1, 'max_acceleration': 1,
-        'width': 500, 'batch_size': 512, 'vision_width': 7, 'vision_height': 7, 'max_health': 1.0, 'min_health': 0.5, 'max_crossover': 3, 'wall_prob': 0.02, 'wall_seed': 20, 'food_prob': 0}
-
-config_dir = os.path.join('./results', 'exp_{:d}'.format(argv.experiment_num))
-
-try:
-    os.makedirs(config_dir)
-except:
-    shutil.rmtree(config_dir)
-    os.makedirs(config_dir)
-
-with open(os.path.join(config_dir, 'config.txt'), 'w') as f:
-    f.write(json.dumps(args))
+    with open(os.path.join(config_dir, 'config.txt'), 'w') as f:
+        f.write(json.dumps(params))
 
 
-#args = {'predator_num': 20, 'prey_num': 20, 'num_actions': 4, 'height':100, 'damage_per_step': 0.01, 'img_length': 5, 'max_hunt_square': 3, 'max_speed': 1, 'max_acceleration': 1,
-#        'width': 100, 'batch_size': 512, 'vision_width': 7, 'vision_height': 7, 'max_health': 1.0, 'min_health': 0.5, 'max_crossover': 3, 'wall_prob': 0.02, 'wall_seed': 20, 'food_prob': 0}
-        #'width': 70, 'batch_size': 1, 'view_args': ['2500-5-5-0','2500-5-5-1','2500-5-5-2','']}
-args = AttrDict(args)
+params = read_yaml('config.yaml')
 
-env = SimplePopulationDynamics(args)
-env.make_world(wall_prob=0.02, wall_seed=20, food_prob=0)
+
+
+@click.group
+def main():
+    pass
+
+@main.command()
+@click.option('--env', required=True)
+@click.option('--experiment_id', help='Experiment Id', required=True)
+def double_dqn(env, experiment_id):
+    params['model_type'] = 'DDQN'
+    save_config(params, experiment_id)
+    env = SimplePopulationDynamics(args)
+    env.make_world(wall_prob=0.02, wall_seed=20, food_prob=0)
+
+@main.command()
+@click.option('--env', required=True)
+@click.option('--experiment_id', help='Experiment Id', required=True)
+def dqn(env, experiment_id):
+    params['model_type'] = 'DQN'
+    save_config(params, experiment_id)
+    env = SimplePopulationDynamics(args)
+    env.make_world(wall_prob=0.02, wall_seed=20, food_prob=0)
+
+if __name__ == '__main__':
+    main()
+
 #env.plot_map()
 
 predators = []
