@@ -14,7 +14,7 @@ import gc
 import shutil
 
 
-class DQN(nn.Module):
+class DDQN(nn.Module):
     def __init__(self, args, env, q_net, loss_func, opt, lr=0.001,
                  input_dim=55, hidden_dims=[32, 32], action_size=4, agent_emb_dim=5,
                  gamma=0.99):
@@ -59,7 +59,7 @@ class DQN(nn.Module):
         #eps_greedy = 0.9
 
         rounds = 0
-        model_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_num), 'models')
+        model_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_id), 'models')
         try:
             os.makedirs(model_dir)
         except:
@@ -74,8 +74,8 @@ class DQN(nn.Module):
             if episode == 0 or len(self.env.predators) == 0 or len(self.env.preys) == 0:
                 obs = self.env.reset()
 
-                img_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_num), 'images',str(rounds))
-                log_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_num), 'logs', str(rounds))
+                img_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_id), 'images',str(rounds))
+                log_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_id), 'logs', str(rounds))
                 try:
                     os.makedirs(img_dir)
                 except:
@@ -160,9 +160,11 @@ class DQN(nn.Module):
                 log.flush()
                 timesteps += 1
 
-                if i % 5 == 0:
-                    self.env.increase_prey(0.006)
-                    self.env.increase_predator(0.003)
+                #if i % 5 == 0:
+                #    self.env.increase_prey(0.006)
+                #    self.env.increase_predator(0.003)
+                self.env.crossover_prey(crossover_rate=0.006)
+                self.env.crossover_predator(crossover_rate=0.003)
 
                 if i % update_period:
                     self.update_params()
@@ -192,8 +194,8 @@ class DQN(nn.Module):
 
         obs = self.env.reset()
 
-        img_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_num), self.args.test_num, 'test_images')
-        log_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_num), self.args.test_num, 'test_logs')
+        img_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_id), self.args.test_num, 'test_images')
+        log_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_id), self.args.test_num, 'test_logs')
         try:
             os.makedirs(img_dir)
         except:
@@ -237,9 +239,11 @@ class DQN(nn.Module):
             killed = self.env.remove_dead_agents()
             self.remove_dead_agent_emb(killed)
 
-            if i % 5 == 0:
-                self.env.increase_prey(0.006)
-                self.env.increase_predator(0.003)
+            #if i % 5 == 0:
+            #    self.env.increase_prey(0.006)
+            #    self.env.increase_predator(0.003)
+            self.env.crossover_prey(crossover_rate=0.006)
+            self.env.crossover_predator(crossover_rate=0.003)
 
 
             if len(self.env.predators) < 1 or len(self.env.preys) < 1:
