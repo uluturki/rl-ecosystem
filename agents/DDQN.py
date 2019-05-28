@@ -14,11 +14,11 @@ import gc
 import shutil
 
 
-class DQN(nn.Module):
+class DDQN(nn.Module):
     def __init__(self, args, env, q_net, loss_func, opt, lr=0.001,
                  input_dim=55, hidden_dims=[32, 32], action_size=4, agent_emb_dim=5,
                  gamma=0.99):
-        super(DQN, self).__init__()
+        super(DDQN, self).__init__()
         self.args = args
         self.env = env
         self.agent_emb_dim = agent_emb_dim
@@ -48,7 +48,7 @@ class DQN(nn.Module):
               random_step=1000,
               min_greedy=0.3,
               max_greedy=0.9,
-              greedy_step=5000,
+              greedy_step=10000,
               test_step=1000,
               update_period=20,
               train_frequency=4):
@@ -71,7 +71,7 @@ class DQN(nn.Module):
             total_reward = 0
             bar = tqdm()
 
-            if episode == 0 or len(self.env.predators) == 0 or len(self.env.preys) == 0:
+            if episode == 0 or len(self.env.predators) == 0 or len(self.env.preys) == 0 or len(self.env.preys)>10000 or len(self.env.predators)>10000:
                 obs = self.env.reset()
 
                 img_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_num), 'images',str(rounds))
@@ -167,9 +167,10 @@ class DQN(nn.Module):
                 if i % update_period:
                     self.update_params()
 
-                if len(self.env.predators) < 1 or len(self.env.preys) < 1:
+                if len(self.env.predators) < 1 or len(self.env.preys) < 1 or len(self.env.preys) > 10000 or len(self.env.predators) > 10000:
                     log.close()
                     break
+
 
             #images = [os.path.join(img_dir, ("{:d}.png".format(j+1))) for j in range(timesteps)]
             #self.env.make_video(images, outvid=os.path.join(img_dir, 'episode_{:d}.avi'.format(rounds)))
