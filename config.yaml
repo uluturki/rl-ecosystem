@@ -1,0 +1,43 @@
+parameters:
+    predator_num: 500
+    prey_num: 250
+    num_actions: 4
+    height: 500
+    damage_per_step: 0.01
+    img_length: 5
+    max_hunt_square: 3
+    max_speed: 1
+    max_acceleration: 1
+    width: 500
+    batch_size: 512
+    vision_width: 7
+    vision_height: 7
+    max_health: 1.0
+    min_health: 0.5
+    max_crossover: 3
+    wall_prob: 0.02
+    wall_seed: 20
+    food_prob: 0
+    prey_increase_prob: 0.006
+    predator_increase_prob: 0.003
+
+    # models
+    learning_rate: 0.001
+    input_dim: 55
+    hidden_dims: [32, 32]
+    action_size: 4
+    agent_emb_dim: 5
+    gamma: 0.99
+
+    # training
+    episodes: 100
+    batch_size: 64
+    episode_step: 500
+    random_step: 5000
+    min_greedy: 0.1
+    max_greedy: 0.9
+    greedy_step: 5000
+    update_period: 20
+
+    # test
+    test_step: 200000
