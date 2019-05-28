@@ -106,6 +106,8 @@ class DQN(nn.Module):
                 for j in range(len(obs)//self.args.batch_size+1):
                     view = obs[j*self.args.batch_size:(j+1)*self.args.batch_size]
                     batch_id, batch_view = self.process_view_with_emb_batch(view)
+                    if len(batch_view) == 0:
+                        continue
                     if np.random.rand() < eps_greedy:
                         action = self.q_net(batch_view).max(1)[1].cpu().numpy()
                     else:
