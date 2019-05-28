@@ -88,6 +88,7 @@ class DQN(nn.Module):
                 timesteps = 0
 
             for i in range(episode_step):
+                episode_reward = 0
                 if self.video_flag:
                     self.env.dump_image(os.path.join(img_dir, '{:d}.png'.format(timesteps+1)))
 
@@ -118,21 +119,21 @@ class DQN(nn.Module):
                     view_batches.append(view)
                     view_ids.append(batch_id)
                     view_values_list.append(batch_view)
+                num_batches = j
 
                 actions = dict(zip(ids, actions))
                 next_view_batches, rewards = self.env.step(actions)
-                total_reward += np.sum(list(rewards.values()))
+                episode_reward += np.sum(list(rewards.values()))
+                total_reward += (episode_reward / len(obs))
 
                 loss_batch = 0
-                for j in range(len(next_view_batches)//self.args.batch_size+1):
+                for j in range(num_batches):
                     #view_id, view_values = self.process_view_with_emb_batch(view)
                     view_id = view_ids[j]
                     view_values = view_values_list[j]
                     next_view = obs[j*self.args.batch_size:(j+1)*self.args.batch_size]
                     next_view_id, next_view_values = self.process_view_with_emb_batch(next_view)
                     #z = self.q_net(Variable(torch.from_numpy(view_values)).type(self.dtype))
-                    if len(view_values) == 0:
-                        continue
                     z = self.q_net(view_values)
                     z = z.gather(1, Variable(torch.Tensor(action_batches[j])).view(len(view_values), 1).type(self.dlongtype))
 
@@ -161,12 +162,14 @@ class DQN(nn.Module):
                     loss_batch += l.cpu().detach().data.numpy()
                     killed = self.env.remove_dead_agents()
                     self.remove_dead_agent_emb(killed)
+
+                loss += (loss_batch/(j+1))
                 view_batches = next_view_batches
-                msg = "episode {:03d} episode step {:03d} loss:{:5.4f} reward:{:5.3f} eps_greedy {:5.3f}".format(episode, i, loss_batch/j, total_reward/len(obs), eps_greedy)
+                msg = "episode {:03d} episode step {:03d} loss:{:5.4f} reward:{:5.3f} eps_greedy {:5.3f}".format(episode, i, loss_batch/(j+1), episode_reward/len(obs), eps_greedy)
                 bar.set_description(msg)
                 bar.update(1)
 
-                info = "Episode\t{:03d}\tStep\t{:03d}\tReward\t{:5.3f}\tnum_agents\t{:d}\tnum_preys\t{:d}\tnum_predators\t{:d}".format(episode, i, total_reward, len(self.env.agents), len(self.env.preys), len(self.env.predators))
+                info = "Episode\t{:03d}\tStep\t{:03d}\tReward\t{:5.3f}\tnum_agents\t{:d}\tnum_preys\t{:d}\tnum_predators\t{:d}".format(episode, i, episode_reward/len(obs), len(self.env.agents), len(self.env.preys), len(self.env.predators))
                 log.write(info+'\n')
                 log.flush()
                 timesteps += 1
@@ -183,6 +186,12 @@ class DQN(nn.Module):
                 if len(self.env.predators) < 1 or len(self.env.preys) < 1 or len(self.env.preys) > 10000 or len(self.env.predators) > 10000:
                     log.close()
                     break
+
+            msg = "episode {:03d} avg loss:{:5.4f} avg reward:{:5.3f} eps_greedy {:5.3f}".format(episode, loss/(i+1), total_reward/(i+1), eps_greedy)
+            bar.set_description(msg)
+            bar.update(0)
+            bar.refresh()
+            bar.close()
 
             #images = [os.path.join(img_dir, ("{:d}.png".format(j+1))) for j in range(timesteps)]
             #self.env.make_video(images, outvid=os.path.join(img_dir, 'episode_{:d}.avi'.format(rounds)))
