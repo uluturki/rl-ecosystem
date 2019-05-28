@@ -37,7 +37,7 @@ def save_config(params, experiment_id):
 def make_env(env_type, params):
     if env_type == 'simple_population_dynamics_ga':
         return SimplePopulationDynamicsGA(params)
-    elif env_type == 'simple_population_dyanmics':
+    elif env_type == 'simple_population_dynamics':
         return SimplePopulationDynamics(params)
 
 
@@ -52,7 +52,7 @@ def main():
 @main.command()
 @click.option('--env_type', required=True)
 @click.option('--experiment_id', help='Experiment Id', required=True, type=int)
-def double_dqn(env_type, experiment_id):
+def ddqn(env_type, experiment_id):
     params['model_type'] = 'DDQN'
     params['env_type'] = env_type
     params['experiment_id'] = experiment_id

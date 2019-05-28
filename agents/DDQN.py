@@ -126,7 +126,7 @@ class DDQN(nn.Module):
 
                     prior_action = self.q_net(next_view_values).max(1)[1].detach()
                     next_q_values = self.target_q_net(next_view_values)
-                    next_q_values = next_q_value.gather(1, prior_action.view(-1, 1).type(dlongtype)).view(-1)
+                    next_q_values = next_q_values.gather(1, prior_action.view(-1, 1).type(dlongtype)).view(-1)
 
                     reward_value = []
                     for id in view_id:
@@ -240,11 +240,11 @@ class DDQN(nn.Module):
             killed = self.env.remove_dead_agents()
             self.remove_dead_agent_emb(killed)
 
-            #if i % 5 == 0:
-            #    self.env.increase_prey(0.006)
-            #    self.env.increase_predator(0.003)
-            self.env.crossover_prey(crossover_rate=0.006)
-            self.env.crossover_predator(crossover_rate=0.003)
+            if i % 5 == 0:
+                self.env.increase_prey(0.006)
+                self.env.increase_predator(0.003)
+            #self.env.crossover_prey(crossover_rate=0.006)
+            #self.env.crossover_predator(crossover_rate=0.003)
 
 
             if len(self.env.predators) < 1 or len(self.env.preys) < 1:
