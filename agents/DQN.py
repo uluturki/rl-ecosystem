@@ -48,7 +48,7 @@ class DQN(nn.Module):
               min_greedy=0.1,
               max_greedy=0.9,
               greedy_step=5000,
-              update_period=20):
+              update_period=10):
 
         eps_greedy = min_greedy
         g_step = (max_greedy - min_greedy) / greedy_step
@@ -56,7 +56,7 @@ class DQN(nn.Module):
         #eps_greedy = 0.9
 
         rounds = 0
-        model_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_num), 'models')
+        model_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_id), 'models')
         try:
             os.makedirs(model_dir)
         except:
@@ -71,8 +71,8 @@ class DQN(nn.Module):
             if episode == 0 or len(self.env.predators) == 0 or len(self.env.preys) == 0 or len(self.env.preys)>10000 or len(self.env.predators)>10000:
                 obs = self.env.reset()
 
-                img_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_num), 'images',str(rounds))
-                log_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_num), 'logs', str(rounds))
+                img_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_id), 'images',str(rounds))
+                log_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_id), 'logs', str(rounds))
                 try:
                     os.makedirs(img_dir)
                 except:
@@ -98,9 +98,13 @@ class DQN(nn.Module):
                 actions = []
                 ids = []
                 action_batches = []
-                view_batches = self.env.render()
+                obs = self.env.render()
+                view_batches = []
+                view_ids = []
+                view_values_list = []
 
-                for view in view_batches:
+                for j in range(len(obs)//self.args.batch_size+1):
+                    view = obs[j*self.args.batch_size:(j+1)*self.args.batch_size]
                     batch_id, batch_view = self.process_view_with_emb_batch(view)
                     if np.random.rand() < eps_greedy:
                         action = self.q_net(batch_view).max(1)[1].cpu().numpy()
@@ -109,15 +113,24 @@ class DQN(nn.Module):
                     ids.extend(batch_id)
                     actions.extend(action)
                     action_batches.append(action)
+                    view_batches.append(view)
+                    view_ids.append(batch_id)
+                    view_values_list.append(batch_view)
+
                 actions = dict(zip(ids, actions))
                 next_view_batches, rewards = self.env.step(actions)
                 total_reward += np.sum(list(rewards.values()))
 
                 loss_batch = 0
-                for j, (view, next_view) in enumerate(zip(view_batches, next_view_batches)):
-                    view_id, view_values = self.process_view_with_emb_batch(view)
+                for j in range(len(next_view_batches)//self.args.batch_size+1):
+                    #view_id, view_values = self.process_view_with_emb_batch(view)
+                    view_id = view_ids[j]
+                    view_values = view_values_list[j]
+                    next_view = obs[j*self.args.batch_size:(j+1)*self.args.batch_size]
                     next_view_id, next_view_values = self.process_view_with_emb_batch(next_view)
                     #z = self.q_net(Variable(torch.from_numpy(view_values)).type(self.dtype))
+                    if len(view_values) == 0:
+                        continue
                     z = self.q_net(view_values)
                     z = z.gather(1, Variable(torch.Tensor(action_batches[j])).view(len(view_values), 1).type(self.dlongtype))
 
@@ -131,9 +144,9 @@ class DQN(nn.Module):
                             reward_value.append(0.)
 
                     reward_value = np.array(reward_value)
-
                     target = Variable(torch.from_numpy(reward_value)).type(self.dtype) + next_q_values * self.gamma
                     target = target.detach().view(len(target), 1) # we do not want to do back-propagation
+
 
                     l = self.loss_func(z, target)
 
@@ -147,7 +160,7 @@ class DQN(nn.Module):
                     killed = self.env.remove_dead_agents()
                     self.remove_dead_agent_emb(killed)
                 view_batches = next_view_batches
-                msg = "episode {:03d} episode step {:03d} loss:{:5.3f} reward:{:5.3f} eps_greedy {:5.3f}".format(episode, i, loss_batch/len(view_batches), total_reward, eps_greedy)
+                msg = "episode {:03d} episode step {:03d} loss:{:5.4f} reward:{:5.3f} eps_greedy {:5.3f}".format(episode, i, loss_batch/j, total_reward/len(obs), eps_greedy)
                 bar.set_description(msg)
                 bar.update(1)
 
@@ -183,8 +196,8 @@ class DQN(nn.Module):
 
         obs = self.env.reset()
 
-        img_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_num), str(self.args.test_num), 'test_images')
-        log_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_num), str(self.args.test_num), 'test_logs')
+        img_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_id), str(self.args.test_num), 'test_images')
+        log_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_id), str(self.args.test_num), 'test_logs')
         try:
             os.makedirs(img_dir)
         except:

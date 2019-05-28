@@ -2,13 +2,13 @@ parameters:
     predator_num: 500
     prey_num: 250
     num_actions: 4
-    height: 600,
+    height: 500
     damage_per_step: 0.01
     img_length: 5
     max_hunt_square: 3
     max_speed: 1
     max_acceleration: 1
-    width: 600
+    width: 500
     batch_size: 512
     vision_width: 7
     vision_height: 7
