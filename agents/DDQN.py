@@ -126,7 +126,7 @@ class DDQN(nn.Module):
 
                     prior_action = self.q_net(next_view_values).max(1)[1].detach()
                     next_q_values = self.target_q_net(next_view_values)
-                    next_q_values = next_q_values.gather(1, prior_action.view(-1, 1).type(dlongtype)).view(-1)
+                    next_q_values = next_q_values.gather(1, prior_action.view(-1, 1).type(self.dlongtype)).view(-1)
 
                     reward_value = []
                     for id in view_id:
