@@ -174,11 +174,11 @@ class DQN(nn.Module):
                 log.flush()
                 timesteps += 1
 
-                #if i % 5 == 0:
-                #    self.env.increase_prey(0.006)
-                #    self.env.increase_predator(0.003)
-                self.env.crossover_prey(crossover_rate=0.006)
-                self.env.crossover_predator(crossover_rate=0.003)
+                if i % 5 == 0:
+                    self.env.increase_prey(0.006)
+                    self.env.increase_predator(0.003)
+                #self.env.crossover_prey(crossover_rate=0.006)
+                #self.env.crossover_predator(crossover_rate=0.003)
 
                 if i % update_period:
                     self.update_params()

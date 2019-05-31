@@ -31,10 +31,10 @@ with open(log_file)as fin:
 
 
 #st =5000
-st = 0
+#st = 0
 #ed = len(predator_num)
-#st = 12000
-#ed = 20000
+st = 2000
+#ed = len(predator_num)
 ed = len(predator_num)
 
 x = range(len(prey_num))

@@ -13,8 +13,8 @@ args = argparser.parse_args()
 
 img_dir = args.img_dir
 
-st = 1
-ed = 30
+st = 1500
+ed = len(os.listdir(img_dir))
 
 images = [os.path.join(img_dir, '{:d}.png'.format(i+1)) for i in range(st, ed)]
 
