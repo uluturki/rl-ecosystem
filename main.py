@@ -7,7 +7,7 @@ from garl_gym.scenarios.simple_population_dynamics_ga import SimplePopulationDyn
 from garl_gym.scenarios.simple_population_dynamics import SimplePopulationDynamics
 import matplotlib.pyplot as plt
 import seaborn as sns
-from models.QNet import QNet
+from models.QNet import QNet, QNetConv
 from agents.DQN import DQN
 from agents.DDQN import DDQN
 import argparse
@@ -60,7 +60,10 @@ def ddqn(env_type, experiment_id):
     save_config(params, experiment_id)
     env = make_env(env_type, params)
     env.make_world(wall_prob=0.02, wall_seed=20, food_prob=0)
-    q_net = QNet(params.vision_width*params.vision_height*4+5)
+    if params['obs_type'] == 'conv':
+        q_net = QNetConv(params.input_dim)
+    else:
+        q_net = QNet(params.vision_width*params.vision_height*4+5)
     agent = DDQN(params,
                 env,
                 q_net,
@@ -80,7 +83,10 @@ def dqn(env_type, experiment_id):
     save_config(params, experiment_id)
     env = make_env(env_type, params)
     env.make_world(wall_prob=0.02, wall_seed=20, food_prob=0)
-    q_net = QNet(params.vision_width*params.vision_height*4+5)
+    if params['obs_type'] == 'conv':
+        q_net = QNetConv(params.input_dim)
+    else:
+        q_net = QNet(params.vision_width*params.vision_height*4+5)
     agent = DQN(params,
                 env,
                 q_net,

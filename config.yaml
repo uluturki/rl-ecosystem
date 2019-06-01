@@ -23,8 +23,10 @@ parameters:
 
     # models
     learning_rate: 0.001
-    input_dim: 55
-    hidden_dims: [32, 32]
+    #input_dim: 55
+    input_dim: 9
+    #hidden_dims: [32, 32]
+    hidden_dims: [32, 8]
     action_size: 4
     agent_emb_dim: 5
     gamma: 0.99
@@ -41,3 +43,7 @@ parameters:
 
     # test
     test_step: 200000
+    #obs_type: 'dense' #conv
+    obs_type: 'conv' #conv
+
+    video_flag: False
