@@ -1,41 +1,80 @@
 import os, sys
+import json
 
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from models.QNet import QNet
+from models.QNet import QNet, QNetConv
 from agents.DQN import DQN
 import argparse
 from attrdict import AttrDict
-from garl_gym.scenarios.simple_population_dynamics_ga_near import SimplePopulationDynamics
+from garl_gym.scenarios.simple_population_dynamics_ga import SimplePopulationDynamicsGA
+from garl_gym.scenarios.simple_population_dynamics import SimplePopulationDynamics
 
 
 argparser = argparse.ArgumentParser()
 
 argparser.add_argument('--model_file', type=str)
-argparser.add_argument('--experiment_num', type=int, default=0)
-argparser.add_argument('--test_num', type=int, default=0)
+argparser.add_argument('--path_prefix', type=str)
+argparser.add_argument('--experiment_id', type=int, default=0)
+argparser.add_argument('--test_id', type=int, default=0)
 
-argv = argparser.parse_args()
+args = argparser.parse_args()
+
+def make_env(env_type, params):
+    if env_type == 'simple_population_dynamics_ga':
+        return SimplePopulationDynamicsGA(params)
+    elif env_type == 'simple_population_dynamics':
+        return SimplePopulationDynamics(params)
 
 
-#args = {'predator_num': 500, 'prey_num': 250, 'num_actions': 4, 'height':300, 'damage_per_step': 0.01, 'img_length': 5, 'max_hunt_square': 3, 'max_speed': 1, 'max_acceleration': 1,
-#        'width': 300, 'batch_size': 512, 'vision_width': 7, 'vision_height': 7, 'max_health': 1.0, 'min_health': 0.5, 'max_crossover': 3, 'wall_prob': 0.02, 'wall_seed': 20, 'food_prob': 0}
-        #'width': 70, 'batch_size': 1, 'view_args': ['2500-5-5-0','2500-5-5-1','2500-5-5-2','']}
+def load_config(path_prefix):
+    params = json.loads(open(os.path.join(path_prefix, 'config.txt')).read())
+    return AttrDict(params)
 
-args = {'predator_num': 1000, 'prey_num': 500, 'num_actions': 4, 'height':500, 'damage_per_step': 0.01, 'img_length': 5, 'max_hunt_square': 3, 'max_speed': 1, 'max_acceleration': 1,
-        'width': 500, 'batch_size': 512, 'vision_width': 7, 'vision_height': 7, 'max_health': 1.0, 'min_health': 0.5, 'max_crossover': 3, 'wall_prob': 0.02, 'wall_seed': 20, 'food_prob': 0}
-args = AttrDict(args)
+def ddqn(params, env_type, experiment_id, test_id):
+    params['experiment_id'] = experiment_id
+    params['test_id'] = test_id
+    env = make_env(env_type, params)
+    env.make_world(wall_prob=0.02, wall_seed=20, food_prob=0)
+    if params['obs_type'] == 'conv':
+        q_net = QNetConv(params.input_dim)
+    else:
+        q_net = QNet(params.vision_width*params.vision_height*4+5)
+    agent = DDQN(params,
+                env,
+                q_net,
+                nn.MSELoss(),
+                optim.RMSprop)
+    agent.test(args.model_file)
 
-env = SimplePopulationDynamics(args)
-env.make_world(wall_prob=0.02, wall_seed=20, food_prob=0)
+def dqn(params, env_type, experiment_id, test_id):
+    params['experiment_id'] = experiment_id
+    params['test_id'] = test_id
 
-q_net = torch.load(argv.model_file)
-agent = DQN(argv,
-            env,
-            q_net,
-            nn.MSELoss(),
-            optim.RMSprop)
+    env = make_env(env_type, params)
+    env.make_world(wall_prob=0.02, wall_seed=20, food_prob=0)
+    if params['obs_type'] == 'conv':
+        q_net = QNetConv(params.input_dim)
+    else:
+        q_net = QNet(params.vision_width*params.vision_height*4+5)
+    agent = DQN(params,
+                env,
+                q_net,
+                nn.MSELoss(),
+                optim.RMSprop)
+    agent.test(args.model_file)
 
-agent.test(argv.model_file)
+
+if __name__ == '__main__':
+
+    params = load_config(args.path_prefix)
+
+    if params['model_type'] == 'DDQN':
+        ddqn(params, params['env_type'], args.experiment_id, args.test_id)
+    elif params['model_type'] == 'DQN':
+        dqn(params, params['env_type'], args.experiment_id, args.test_id)
+    else:
+        raise NotImplementedError
+
