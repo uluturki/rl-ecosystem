@@ -257,6 +257,13 @@ class DQN(nn.Module):
             actions = dict(zip(ids, actions))
             next_view_batches, rewards = self.env.step(actions)
             total_reward += np.sum(list(rewards.values()))
+
+            killed = self.env.remove_dead_agents()
+            if self.obs_type == 'dense':
+                self.remove_dead_agent_emb(killed)
+            else:
+                self.env.remove_dead_agent_emb(killed)
+
             msg = "episode step {:03d}".format(i)
             bar.set_description(msg)
             bar.update(1)
@@ -268,11 +275,13 @@ class DQN(nn.Module):
             killed = self.env.remove_dead_agents()
             self.remove_dead_agent_emb(killed)
 
-            #if i % 5 == 0:
-            #    self.env.increase_prey(0.006)
-            #    self.env.increase_predator(0.003)
-            self.env.crossover_prey(crossover_rate=self.args.prey_increase_prob)
-            self.env.crossover_predator(crossover_rate=self.args.predator_increase_prob)
+            if self.args.env_type == 'simple_population_dynamics':
+                if i % 5 == 0:
+                    self.env.increase_prey(0.006)
+                    self.env.increase_predator(0.003)
+            else:
+                self.env.crossover_prey(crossover_rate=self.args.prey_increase_prob)
+                self.env.crossover_predator(crossover_rate=self.args.predator_increase_prob)
 
 
             if len(self.env.predators) < 1 or len(self.env.preys) < 1 or len(self.env.predators) > 10000 or len(self.env.preys) > 10000:

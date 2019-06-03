@@ -9,7 +9,8 @@ from models.QNet import QNet, QNetConv
 from agents.DQN import DQN
 import argparse
 from attrdict import AttrDict
-from garl_gym.scenarios.simple_population_dynamics_ga_near import SimplePopulationDynamics
+from garl_gym.scenarios.simple_population_dynamics_ga import SimplePopulationDynamicsGA
+from garl_gym.scenarios.simple_population_dynamics import SimplePopulationDynamics
 
 
 argparser = argparse.ArgumentParser()
