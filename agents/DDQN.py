@@ -20,6 +20,7 @@ class DDQN(nn.Module):
                  gamma=0.99):
         super(DDQN, self).__init__()
         self.args = args
+        self.obs_type = args.obs_type
         self.env = env
         self.agent_emb_dim = agent_emb_dim
         self.agent_embeddings = {}
@@ -91,19 +92,25 @@ class DDQN(nn.Module):
                 timesteps = 0
 
             for i in range(episode_step):
+                episode_reward = 0
                 if self.video_flag:
                     self.env.dump_image(os.path.join(img_dir, '{:d}.png'.format(timesteps+1)))
 
                 eps_greedy += g_step
                 eps_greedy = np.clip(eps_greedy, min_greedy, max_greedy)
 
-
                 actions = []
                 ids = []
                 action_batches = []
-                view_batches = self.env.render()
+                obs = self.env.render(only_view=True)
+                view_batches = []
+                view_ids = []
+                view_values_list = []
 
-                for view in view_batches:
+                for j in range(len(obs)//self.args.batch_size+1):
+                    view = obs[j*self.args.batch_size:(j+1)*self.args.batch_size]
+                    if len(view) == 0:
+                        continue
                     batch_id, batch_view = self.process_view_with_emb_batch(view)
                     if np.random.rand() < eps_greedy:
                         action = self.q_net(batch_view).max(1)[1].cpu().numpy()
@@ -112,13 +119,22 @@ class DDQN(nn.Module):
                     ids.extend(batch_id)
                     actions.extend(action)
                     action_batches.append(action)
+                    view_batches.append(view)
+                    view_ids.append(batch_id)
+                    view_values_list.append(batch_view)
+                num_batches = j
+
                 actions = dict(zip(ids, actions))
                 next_view_batches, rewards = self.env.step(actions)
-                total_reward += np.sum(list(rewards.values()))
+                episode_reward += np.sum(list(rewards.values()))
+                total_reward += (episode_reward / len(obs))
 
                 loss_batch = 0
-                for j, (view, next_view) in enumerate(zip(view_batches, next_view_batches)):
-                    view_id, view_values = self.process_view_with_emb_batch(view)
+                for j in range(num_batches):
+                    #view_id, view_values = self.process_view_with_emb_batch(view)
+                    view_id = view_ids[j]
+                    view_values = view_values_list[j]
+                    next_view = obs[j*self.args.batch_size:(j+1)*self.args.batch_size]
                     next_view_id, next_view_values = self.process_view_with_emb_batch(next_view)
                     #z = self.q_net(Variable(torch.from_numpy(view_values)).type(self.dtype))
                     z = self.q_net(view_values)
@@ -149,13 +165,16 @@ class DDQN(nn.Module):
                     self.opt.step()
                     loss_batch += l.cpu().detach().data.numpy()
                     killed = self.env.remove_dead_agents()
-                    self.remove_dead_agent_emb(killed)
+                    if self.obs_type == 'dense':
+                        self.remove_dead_agent_emb(killed)
+                    else:
+                        self.env.remove_dead_agent_emb(killed)
                 view_batches = next_view_batches
-                msg = "episode {:03d} episode step {:03d} reward:{:5.3f} eps_greedy {:5.3f}".format(episode, i, total_reward, eps_greedy)
+                msg = "episode {:03d} episode step {:03d} loss:{:5.4f} reward:{:5.3f} eps_greedy {:5.3f}".format(episode, i, loss_batch/(j+1), episode_reward/len(obs), eps_greedy)
                 bar.set_description(msg)
                 bar.update(1)
 
-                info = "Episode\t{:03d}\tStep\t{:03d}\tReward\t{:5.3f}\tnum_agents\t{:d}\tnum_preys\t{:d}\tnum_predators\t{:d}".format(episode, i, total_reward, len(self.env.agents), len(self.env.preys), len(self.env.predators))
+                info = "Episode\t{:03d}\tStep\t{:03d}\tReward\t{:5.3f}\tnum_agents\t{:d}\tnum_preys\t{:d}\tnum_predators\t{:d}".format(episode, i, episode_reward/len(obs), len(self.env.agents), len(self.env.preys), len(self.env.predators))
                 log.write(info+'\n')
                 log.flush()
                 timesteps += 1
@@ -265,22 +284,23 @@ class DDQN(nn.Module):
     def take_action(self, state):
         raise NotImplementedError
 
-
-
     def process_view_with_emb_batch(self, input_view):
         batch_id = []
         batch_view = []
-        for id, view in input_view:
-            if id in self.agent_embeddings:
-                new_view = np.concatenate((self.agent_embeddings[id], view), 0)
-                batch_view.append(new_view)
-                batch_id.append(id)
-            else:
-                new_embedding = np.random.normal(size=[self.agent_emb_dim])
-                self.agent_embeddings[id] = new_embedding
-                new_view = np.concatenate((new_embedding, view), 0)
-                batch_view.append(new_view)
-                batch_id.append(id)
+        if self.obs_type == 'conv':
+            batch_id, batch_view = zip(*input_view)
+        else:
+            for id, view in input_view:
+                if id in self.agent_embeddings:
+                    new_view = np.concatenate((self.agent_embeddings[id], view), 0)
+                    batch_view.append(new_view)
+                    batch_id.append(id)
+                else:
+                    new_embedding = np.random.normal(size=[self.agent_emb_dim])
+                    self.agent_embeddings[id] = new_embedding
+                    new_view = np.concatenate((new_embedding, view), 0)
+                    batch_view.append(new_view)
+                    batch_id.append(id)
         return batch_id, Variable(torch.from_numpy(np.array(batch_view))).type(self.dtype)
 
     def remove_dead_agent_emb(self, dead_list):
