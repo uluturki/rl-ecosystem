@@ -8,6 +8,7 @@ from scipy.interpolate import spline
 
 argparser = argparse.ArgumentParser()
 argparser.add_argument('--log_file', type=str)
+argparser.add_argument('--st', type=int, default=0)
 args = argparser.parse_args()
 
 log_file = args.log_file
@@ -33,7 +34,7 @@ with open(log_file)as fin:
 #st =5000
 #st = 0
 #ed = len(predator_num)
-st = 0
+st = args.st
 #ed = len(predator_num)
 ed = len(predator_num)
 
