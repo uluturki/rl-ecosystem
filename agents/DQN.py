@@ -178,11 +178,11 @@ class DQN(nn.Module):
                 log.flush()
                 timesteps += 1
 
-                #if i % 5 == 0:
-                    #self.env.increase_prey(0.006)
-                    #self.env.increase_predator(0.003)
-                self.env.crossover_prey(crossover_rate=0.006)
-                self.env.crossover_predator(crossover_rate=0.003)
+                if i % 5 == 0:
+                    self.env.increase_prey(self.args.prey_increase_prob)
+                    self.env.increase_predator(self.args.predator_increase_prob)
+                #self.env.crossover_prey(crossover_rate=self.args.prey_increase_prob)
+                #self.env.crossover_predator(crossover_rate=self.args.predator_increase_prob)
 
                 if i % update_period:
                     self.update_params()
@@ -211,8 +211,9 @@ class DQN(nn.Module):
 
         obs = self.env.reset()
 
-        img_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_id), str(self.args.test_num), 'test_images')
-        log_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_id), str(self.args.test_num), 'test_logs')
+        img_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_id), 'test_images', str(self.args.test_id))
+        log_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_id), 'test_logs', str(self.args.test_id))
+
         try:
             os.makedirs(img_dir)
         except:
@@ -234,14 +235,25 @@ class DQN(nn.Module):
             actions = []
             ids = []
             action_batches = []
-            view_batches = self.env.render()
+            obs = self.env.render(only_view=True)
+            view_batches = []
+            view_ids = []
+            view_values_list = []
 
-            for view in view_batches:
+            for j in range(len(obs)//self.args.batch_size+1):
+                view = obs[j*self.args.batch_size:(j+1)*self.args.batch_size]
+                if len(view) == 0:
+                    continue
                 batch_id, batch_view = self.process_view_with_emb_batch(view)
                 action = self.q_net(batch_view).max(1)[1].cpu().numpy()
                 ids.extend(batch_id)
                 actions.extend(action)
                 action_batches.append(action)
+                view_batches.append(view)
+                view_ids.append(batch_id)
+                view_values_list.append(batch_view)
+
+            num_batches = j
             actions = dict(zip(ids, actions))
             next_view_batches, rewards = self.env.step(actions)
             total_reward += np.sum(list(rewards.values()))
@@ -259,8 +271,8 @@ class DQN(nn.Module):
             #if i % 5 == 0:
             #    self.env.increase_prey(0.006)
             #    self.env.increase_predator(0.003)
-            self.env.crossover_prey(crossover_rate=0.006)
-            self.env.crossover_predator(crossover_rate=0.006)
+            self.env.crossover_prey(crossover_rate=self.args.prey_increase_prob)
+            self.env.crossover_predator(crossover_rate=self.args.predator_increase_prob)
 
 
             if len(self.env.predators) < 1 or len(self.env.preys) < 1 or len(self.env.predators) > 10000 or len(self.env.preys) > 10000:

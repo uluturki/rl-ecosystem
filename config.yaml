@@ -2,13 +2,13 @@ parameters:
     predator_num: 1000
     prey_num: 500
     num_actions: 4
-    height: 500
+    height: 600
     damage_per_step: 0.01
     img_length: 5
     max_hunt_square: 5
     max_speed: 1
     max_acceleration: 1
-    width: 500
+    width: 600
     batch_size: 512
     vision_width: 7
     vision_height: 7
@@ -18,17 +18,17 @@ parameters:
     wall_prob: 0.005
     wall_seed: 20
     food_prob: 0
-    prey_increase_prob: 0.006
+    prey_increase_prob: 0.008
     predator_increase_prob: 0.003
 
     # models
     learning_rate: 0.001
     #input_dim: 55
-    input_dim: 9
+    input_dim: 7
     #hidden_dims: [32, 32]
-    hidden_dims: [32, 8]
+    hidden_dims: [16, 8]
     action_size: 4
-    agent_emb_dim: 5
+    agent_emb_dim: 3
     gamma: 0.99
 
     # training
