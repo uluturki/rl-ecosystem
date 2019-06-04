@@ -48,4 +48,4 @@ parameters:
 
     video_flag: False
 
-    cpu_cores: 6
+    cpu_cores: 5
