@@ -4,7 +4,6 @@ import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from scipy.interpolate import spline
 from utils import plot_dynamics
 
 argparser = argparse.ArgumentParser()

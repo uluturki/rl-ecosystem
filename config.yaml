@@ -47,3 +47,5 @@ parameters:
     obs_type: 'conv' #conv
 
     video_flag: False
+
+    cpu_cores: 6
