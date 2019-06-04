@@ -18,8 +18,8 @@ parameters:
     wall_prob: 0.005
     wall_seed: 20
     food_prob: 0
-    prey_increase_prob: 0.008
-    predator_increase_prob: 0.003
+    prey_increase_prob: 0.02
+    predator_increase_prob: 0.01
 
     # models
     learning_rate: 0.001
@@ -48,4 +48,4 @@ parameters:
 
     video_flag: False
 
-    cpu_cores: 6
+    cpu_cores: 5
