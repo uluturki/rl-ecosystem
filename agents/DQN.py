@@ -12,6 +12,7 @@ from tqdm import tqdm
 import gc
 #from torch.utils.tensorboard import SummaryWriter
 import shutil
+from utils import plot_dynamics
 
 
 class DQN(nn.Module):
@@ -48,7 +49,7 @@ class DQN(nn.Module):
               random_step=5000,
               min_greedy=0.1,
               max_greedy=0.9,
-              greedy_step=5000,
+              greedy_step=10000,
               update_period=10):
 
         eps_greedy = min_greedy
@@ -178,11 +179,13 @@ class DQN(nn.Module):
                 log.flush()
                 timesteps += 1
 
-                if i % 5 == 0:
-                    self.env.increase_prey(self.args.prey_increase_prob)
-                    self.env.increase_predator(self.args.predator_increase_prob)
-                #self.env.crossover_prey(crossover_rate=self.args.prey_increase_prob)
-                #self.env.crossover_predator(crossover_rate=self.args.predator_increase_prob)
+                if self.args.env_type == 'simple_population_dynamics':
+                    if i % 5 == 0:
+                        self.env.increase_prey(self.args.prey_increase_prob)
+                        self.env.increase_predator(self.args.predator_increase_prob)
+                else:
+                    self.env.crossover_prey(crossover_rate=self.args.prey_increase_prob)
+                    self.env.crossover_predator(crossover_rate=self.args.predator_increase_prob)
 
                 if i % update_period:
                     self.update_params()
@@ -191,6 +194,8 @@ class DQN(nn.Module):
                     log.close()
                     break
 
+            log_file = os.path.join(log_dir, 'log.txt')
+            plot_dynamics(log_file, 0)
             msg = "episode {:03d} avg loss:{:5.4f} avg reward:{:5.3f} eps_greedy {:5.3f}".format(episode, loss/(i+1), total_reward/(i+1), eps_greedy)
             bar.set_description(msg)
             bar.update(0)
@@ -277,8 +282,8 @@ class DQN(nn.Module):
 
             if self.args.env_type == 'simple_population_dynamics':
                 if i % 5 == 0:
-                    self.env.increase_prey(0.006)
-                    self.env.increase_predator(0.003)
+                    self.env.increase_prey(self.args.prey_increase_prob)
+                    self.env.increase_predator(self.args.predator_increase_prob)
             else:
                 self.env.crossover_prey(crossover_rate=self.args.prey_increase_prob)
                 self.env.crossover_predator(crossover_rate=self.args.predator_increase_prob)
