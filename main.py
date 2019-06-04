@@ -42,8 +42,6 @@ def make_env(env_type, params):
 
 
 params = read_yaml('config.yaml')
-import pdb
-pdb.set_trace()
 
 
 

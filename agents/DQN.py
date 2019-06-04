@@ -49,7 +49,7 @@ class DQN(nn.Module):
               random_step=5000,
               min_greedy=0.1,
               max_greedy=0.9,
-              greedy_step=10000,
+              greedy_step=6000,
               update_period=10):
 
         eps_greedy = min_greedy
