@@ -19,6 +19,7 @@ def plot_dynamics(log_file, st):
     ed = len(predator_num)
 
     x = range(len(prey_num))
+    plt.figure()
     sns.set_style("darkgrid")
     plt.plot(x[st:ed], predator_num[st:ed])
     plt.plot(x[st:ed], prey_num[st:ed])
