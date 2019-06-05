@@ -49,7 +49,7 @@ class DDQN(nn.Module):
               random_step=1000,
               min_greedy=0.3,
               max_greedy=0.9,
-              greedy_step=10000,
+              greedy_step=5000,
               test_step=1000,
               update_period=20,
               train_frequency=4):

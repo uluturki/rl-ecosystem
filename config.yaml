@@ -20,6 +20,7 @@ parameters:
     food_prob: 0
     prey_increase_prob: 0.03
     predator_increase_prob: 0.005
+    crossover_scope: 3
 
     # models
     learning_rate: 0.001
