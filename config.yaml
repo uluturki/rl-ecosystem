@@ -19,7 +19,7 @@ parameters:
     wall_seed: 20
     food_prob: 0
     prey_increase_prob: 0.03
-    predator_increase_prob: 0.015
+    predator_increase_prob: 0.005
 
     # models
     learning_rate: 0.001
