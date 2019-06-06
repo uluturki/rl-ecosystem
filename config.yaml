@@ -18,8 +18,8 @@ parameters:
     wall_prob: 0.005
     wall_seed: 20
     food_prob: 0
-    prey_increase_prob: 0.02
-    predator_increase_prob: 0.01
+    prey_increase_prob: 0.006
+    predator_increase_prob: 0.001
 
     # models
     learning_rate: 0.001
@@ -36,9 +36,9 @@ parameters:
     batch_size: 64
     episode_step: 500
     random_step: 5000
-    min_greedy: 0.1
+    min_greedy: 0.3
     max_greedy: 0.9
-    greedy_step: 5000
+    greedy_step: 6000
     update_period: 20
 
     # test
