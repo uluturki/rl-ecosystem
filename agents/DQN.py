@@ -47,7 +47,7 @@ class DQN(nn.Module):
               episodes=100,
               episode_step=500,
               random_step=5000,
-              min_greedy=0.1,
+              min_greedy=0.3,
               max_greedy=0.9,
               greedy_step=6000,
               update_period=10):
