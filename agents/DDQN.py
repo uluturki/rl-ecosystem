@@ -49,7 +49,7 @@ class DDQN(nn.Module):
               random_step=1000,
               min_greedy=0.3,
               max_greedy=0.9,
-              greedy_step=10000,
+              greedy_step=5000,
               test_step=1000,
               update_period=20,
               train_frequency=4):
@@ -179,11 +179,13 @@ class DDQN(nn.Module):
                 log.flush()
                 timesteps += 1
 
-                #if i % 5 == 0:
-                #    self.env.increase_prey(0.006)
-                #    self.env.increase_predator(0.003)
-                self.env.crossover_prey(crossover_rate=0.006)
-                self.env.crossover_predator(crossover_rate=0.003)
+                if self.args.env_type == 'simple_population_dynamics':
+                    if i % 5 == 0:
+                        self.env.increase_prey(self.args.prey_increase_prob)
+                        self.env.increase_predator(self.args.predator_increase_prob)
+                else:
+                    self.env.crossover_prey(crossover_rate=self.args.prey_increase_prob)
+                    self.env.crossover_predator(crossover_rate=self.args.predator_increase_prob)
 
                 if i % update_period:
                     self.update_params()
@@ -259,11 +261,13 @@ class DDQN(nn.Module):
             killed = self.env.remove_dead_agents()
             self.remove_dead_agent_emb(killed)
 
-            if i % 5 == 0:
-                self.env.increase_prey(0.006)
-                self.env.increase_predator(0.003)
-            #self.env.crossover_prey(crossover_rate=0.006)
-            #self.env.crossover_predator(crossover_rate=0.003)
+            if self.args.env_type == 'simple_population_dynamics':
+                if i % 5 == 0:
+                    self.env.increase_prey(self.args.prey_increase_prob)
+                    self.env.increase_predator(self.args.predator_increase_prob)
+            else:
+                self.env.crossover_prey(crossover_rate=self.args.prey_increase_prob)
+                self.env.crossover_predator(crossover_rate=self.args.predator_increase_prob)
 
 
             if len(self.env.predators) < 1 or len(self.env.preys) < 1:

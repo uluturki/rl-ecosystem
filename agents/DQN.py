@@ -285,8 +285,8 @@ class DQN(nn.Module):
                     self.env.increase_prey(self.args.prey_increase_prob)
                     self.env.increase_predator(self.args.predator_increase_prob)
             else:
-                self.env.crossover_prey(crossover_rate=self.args.prey_increase_prob)
-                self.env.crossover_predator(crossover_rate=self.args.predator_increase_prob)
+                self.env.crossover_prey(self.args.crossover_scope, crossover_rate=self.args.prey_increase_prob)
+                self.env.crossover_predator(self.args.crossover_scope, crossover_rate=self.args.predator_increase_prob)
 
 
             if len(self.env.predators) < 1 or len(self.env.preys) < 1 or len(self.env.predators) > 10000 or len(self.env.preys) > 10000:

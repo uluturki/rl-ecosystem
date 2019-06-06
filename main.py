@@ -69,7 +69,13 @@ def ddqn(env_type, experiment_id):
                 q_net,
                 nn.MSELoss(),
                 optim.RMSprop)
-    agent.train()
+    agent.train(params.episodes,
+                params.episode_step,
+                params.random_step,
+                params.min_greedy,
+                params.max_greedy,
+                params.greedy_step,
+                params.update_period)
 
 
 @main.command()
@@ -92,7 +98,13 @@ def dqn(env_type, experiment_id):
                 q_net,
                 nn.MSELoss(),
                 optim.RMSprop)
-    agent.train()
+    agent.train(params.episodes,
+                params.episode_step,
+                params.random_step,
+                params.min_greedy,
+                params.max_greedy,
+                params.greedy_step,
+                params.update_period)
 
 if __name__ == '__main__':
     main()
