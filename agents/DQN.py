@@ -47,7 +47,7 @@ class DQN(nn.Module):
               episodes=100,
               episode_step=500,
               random_step=5000,
-              min_greedy=0.1,
+              min_greedy=0.3,
               max_greedy=0.9,
               greedy_step=6000,
               update_period=10):
@@ -184,8 +184,8 @@ class DQN(nn.Module):
                         self.env.increase_prey(self.args.prey_increase_prob)
                         self.env.increase_predator(self.args.predator_increase_prob)
                 else:
-                    self.env.crossover_prey(crossover_rate=self.args.prey_increase_prob)
-                    self.env.crossover_predator(crossover_rate=self.args.predator_increase_prob)
+                    self.env.crossover_prey(self.args.crossover_scope, crossover_rate=self.args.prey_increase_prob)
+                    self.env.crossover_predator(self.args.crossover_scope, crossover_rate=self.args.predator_increase_prob)
 
                 if i % update_period:
                     self.update_params()
