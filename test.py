@@ -7,6 +7,7 @@ import torch.nn as nn
 import torch.optim as optim
 from models.QNet import QNet, QNetConv
 from agents.DQN import DQN
+from agents.DDQN import DDQN
 import argparse
 from attrdict import AttrDict
 from garl_gym.scenarios.simple_population_dynamics_ga import SimplePopulationDynamicsGA
