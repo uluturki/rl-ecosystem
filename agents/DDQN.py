@@ -27,7 +27,7 @@ class DDQN(nn.Module):
 
         self.num_actions = action_size
         self.loss_func = loss_func
-        self.video_flag= True
+        self.video_flag= False
 
         self.gamma = gamma
 
@@ -44,15 +44,12 @@ class DDQN(nn.Module):
 
     def train(self,
               episodes=100,
-              batch_size=64,
               episode_step=500,
               random_step=1000,
               min_greedy=0.3,
               max_greedy=0.9,
               greedy_step=5000,
-              test_step=1000,
-              update_period=20,
-              train_frequency=4):
+              update_period=20):
 
         eps_greedy = min_greedy
         g_step = (max_greedy - min_greedy) / greedy_step
@@ -184,8 +181,8 @@ class DDQN(nn.Module):
                         self.env.increase_prey(self.args.prey_increase_prob)
                         self.env.increase_predator(self.args.predator_increase_prob)
                 else:
-                    self.env.crossover_prey(crossover_rate=self.args.prey_increase_prob)
-                    self.env.crossover_predator(crossover_rate=self.args.predator_increase_prob)
+                    self.env.crossover_prey(self.args.crossover_scope, crossover_rate=self.args.prey_increase_prob)
+                    self.env.crossover_predator(self.args.crossover_scope, crossover_rate=self.args.predator_increase_prob)
 
                 if i % update_period:
                     self.update_params()
@@ -200,14 +197,7 @@ class DDQN(nn.Module):
             self.save_model(model_dir, episode)
 
     def test(self, model_file,
-              episodes=100,
-              batch_size=64,
-              episode_step=200000,
-              random_step=1000,
-              min_greedy=0.0,
-              max_greedy=0.9,
-              greedy_step=10000,
-              test_step=1000):
+              test_step=200000):
         self.q_net = torch.load(model_file)
 
 
@@ -216,8 +206,9 @@ class DDQN(nn.Module):
 
         obs = self.env.reset()
 
-        img_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_id), self.args.test_num, 'test_images')
-        log_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_id), self.args.test_num, 'test_logs')
+        img_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_id), 'test_images', str(self.args.test_id))
+        log_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_id), 'test_logs', str(self.args.test_id))
+
         try:
             os.makedirs(img_dir)
         except:
@@ -232,24 +223,42 @@ class DDQN(nn.Module):
 
         timesteps = 0
 
-        for i in range(episode_step):
+        for i in range(test_step):
             if self.video_flag:
                 self.env.dump_image(os.path.join(img_dir, '{:d}.png'.format(timesteps+1)))
 
             actions = []
             ids = []
             action_batches = []
-            view_batches = self.env.render()
+            obs = self.env.render(only_view=True)
+            view_batches = []
+            view_ids = []
+            view_values_list = []
 
-            for view in view_batches:
+            for j in range(len(obs)//self.args.batch_size+1):
+                view = obs[j*self.args.batch_size:(j+1)*self.args.batch_size]
+                if len(view) == 0:
+                    continue
                 batch_id, batch_view = self.process_view_with_emb_batch(view)
                 action = self.q_net(batch_view).max(1)[1].cpu().numpy()
                 ids.extend(batch_id)
                 actions.extend(action)
                 action_batches.append(action)
+                view_batches.append(view)
+                view_ids.append(batch_id)
+                view_values_list.append(batch_view)
+
+            num_batches = j
             actions = dict(zip(ids, actions))
             next_view_batches, rewards = self.env.step(actions)
             total_reward += np.sum(list(rewards.values()))
+
+            killed = self.env.remove_dead_agents()
+            if self.obs_type == 'dense':
+                self.remove_dead_agent_emb(killed)
+            else:
+                self.env.remove_dead_agent_emb(killed)
+
             msg = "episode step {:03d}".format(i)
             bar.set_description(msg)
             bar.update(1)
@@ -266,15 +275,13 @@ class DDQN(nn.Module):
                     self.env.increase_prey(self.args.prey_increase_prob)
                     self.env.increase_predator(self.args.predator_increase_prob)
             else:
-                self.env.crossover_prey(crossover_rate=self.args.prey_increase_prob)
-                self.env.crossover_predator(crossover_rate=self.args.predator_increase_prob)
+                self.env.crossover_prey(self.args.crossover_scope, crossover_rate=self.args.prey_increase_prob)
+                self.env.crossover_predator(self.args.crossover_scope, crossover_rate=self.args.predator_increase_prob)
 
 
-            if len(self.env.predators) < 1 or len(self.env.preys) < 1:
+            if len(self.env.predators) < 1 or len(self.env.preys) < 1 or len(self.env.predators) > 10000 or len(self.env.preys) > 10000:
                 log.close()
                 break
-        #images = [os.path.join(img_dir, ("{:d}.png".format(j+1))) for j in range(timesteps)]
-        #self.env.make_video(images, outvid=os.path.join(img_dir, 'episode_{:d}.avi')
 
 
     def save_model(self, model_dir, episode):
