@@ -50,3 +50,5 @@ parameters:
     video_flag: False
 
     cpu_cores: 4
+
+    load_weight:

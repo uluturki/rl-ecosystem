@@ -60,10 +60,13 @@ def ddqn(env_type, experiment_id):
     save_config(params, experiment_id)
     env = make_env(env_type, params)
     env.make_world(wall_prob=0.02, wall_seed=20, food_prob=0)
-    if params['obs_type'] == 'conv':
-        q_net = QNetConv(params.input_dim)
+    if params['load_weight'] is None:
+        if params['obs_type'] == 'conv':
+            q_net = QNetConv(params.input_dim)
+        else:
+            q_net = QNet(params.vision_width*params.vision_height*4+5)
     else:
-        q_net = QNet(params.vision_width*params.vision_height*4+5)
+        q_net = torch.load(params['load_weight'])
     agent = DDQN(params,
                 env,
                 q_net,
@@ -89,10 +92,13 @@ def dqn(env_type, experiment_id):
     save_config(params, experiment_id)
     env = make_env(env_type, params)
     env.make_world(wall_prob=0.02, wall_seed=20, food_prob=0)
-    if params['obs_type'] == 'conv':
-        q_net = QNetConv(params.input_dim)
+    if params['load_weight'] is None:
+        if params['obs_type'] == 'conv':
+            q_net = QNetConv(params.input_dim)
+        else:
+            q_net = QNet(params.vision_width*params.vision_height*4+5)
     else:
-        q_net = QNet(params.vision_width*params.vision_height*4+5)
+        q_net = torch.load(params['load_weight'])
     agent = DQN(params,
                 env,
                 q_net,
