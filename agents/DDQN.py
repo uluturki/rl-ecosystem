@@ -161,11 +161,12 @@ class DDQN(nn.Module):
                     #clip_grad_norm(self.q_net.parameters(), 1.)
                     self.opt.step()
                     loss_batch += l.cpu().detach().data.numpy()
-                    killed = self.env.remove_dead_agents()
-                    if self.obs_type == 'dense':
-                        self.remove_dead_agent_emb(killed)
-                    else:
-                        self.env.remove_dead_agent_emb(killed)
+
+                killed = self.env.remove_dead_agents()
+                if self.obs_type == 'dense':
+                    self.remove_dead_agent_emb(killed)
+                else:
+                    self.env.remove_dead_agent_emb(killed)
                 view_batches = next_view_batches
                 msg = "episode {:03d} episode step {:03d} loss:{:5.4f} reward:{:5.3f} eps_greedy {:5.3f}".format(episode, i, loss_batch/(j+1), episode_reward/len(obs), eps_greedy)
                 bar.set_description(msg)
