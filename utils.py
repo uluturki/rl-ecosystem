@@ -3,6 +3,7 @@ import os, sys
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import argparse
 
 def plot_dynamics(log_file, st):
     prey_num = []
@@ -41,9 +42,10 @@ def plot_circle(log_file, st):
                 prey_num.append(int(line[7]))
                 predator_num.append(int(line[9]))
 
+    predator_num = predator_num[st:]
     ed = len(predator_num)
-    x = range(len(predator_num[st:]))
-    length = len(predator_num[st:])
+    x = range(len(predator_num))
+    length = len(predator_num)
 
     predator_num_avg = []
     prey_num_avg = []
@@ -67,3 +69,13 @@ def plot_circle(log_file, st):
     plt.legend(['predator number', 'prey number'], loc='upper left')
     plt.grid()
     plt.savefig(os.path.join(os.path.dirname(log_file),'circle.png'))
+
+def str2bool(v):
+    if isinstance(v, bool):
+       return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')

@@ -162,11 +162,11 @@ class DQN(nn.Module):
                     #torch.nn.utils.clip_grad_norm_(self.q_net.parameters(), 1.)
                     self.opt.step()
                     loss_batch += l.cpu().detach().data.numpy()
-                    killed = self.env.remove_dead_agents()
-                    if self.obs_type == 'dense':
-                        self.remove_dead_agent_emb(killed)
-                    else:
-                        self.env.remove_dead_agent_emb(killed)
+                killed = self.env.remove_dead_agents()
+                if self.obs_type == 'dense':
+                    self.remove_dead_agent_emb(killed)
+                else:
+                    self.env.remove_dead_agent_emb(killed)
 
                 loss += (loss_batch/(j+1))
                 view_batches = next_view_batches
@@ -206,10 +206,7 @@ class DQN(nn.Module):
             #self.env.make_video(images, outvid=os.path.join(img_dir, 'episode_{:d}.avi'.format(rounds)))
             self.save_model(model_dir, episode)
 
-    def test(self, model_file,
-              test_step=200000):
-        self.q_net = torch.load(model_file)
-
+    def test(self, test_step=200000):
 
         total_reward = 0
         bar = tqdm()
@@ -258,7 +255,6 @@ class DQN(nn.Module):
                 view_ids.append(batch_id)
                 view_values_list.append(batch_view)
 
-            num_batches = j
             actions = dict(zip(ids, actions))
             next_view_batches, rewards = self.env.step(actions)
             total_reward += np.sum(list(rewards.values()))
@@ -273,12 +269,15 @@ class DQN(nn.Module):
             bar.set_description(msg)
             bar.update(1)
 
-            info = "Step\t{:03d}\tReward\t{:5.3f}\tnum_agents\t{:d}\tnum_preys\t{:d}\tnum_predators\t{:d}".format(i, total_reward, len(self.env.agents), len(self.env.preys), len(self.env.predators))
+            info = "Step\t{:03d}\tReward\t{:5.3f}\tnum_agents\t{:d}\tnum_preys\t{:d}\tnum_predators\t{:d}".format(i, total_reward/len(obs), len(self.env.agents), len(self.env.preys), len(self.env.predators))
             log.write(info+'\n')
             log.flush()
             timesteps += 1
             killed = self.env.remove_dead_agents()
-            self.remove_dead_agent_emb(killed)
+            if self.obs_type == 'dense':
+                self.remove_dead_agent_emb(killed)
+            else:
+                self.env.remove_dead_agent_emb(killed)
 
             if self.args.env_type == 'simple_population_dynamics':
                 if i % 5 == 0:
