@@ -255,6 +255,7 @@ class DQN(nn.Module):
                 view_ids.append(batch_id)
                 view_values_list.append(batch_view)
 
+
             actions = dict(zip(ids, actions))
             next_view_batches, rewards = self.env.step(actions)
             total_reward += np.sum(list(rewards.values()))

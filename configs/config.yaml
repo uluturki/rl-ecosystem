@@ -20,7 +20,7 @@ parameters:
     food_prob: 0
     prey_increase_prob: 0.006
     predator_increase_prob: 0.003
-    crossover_scope: 3
+    crossover_scope: 5
 
     # models
     learning_rate: 0.001
@@ -51,4 +51,5 @@ parameters:
 
     cpu_cores: 4
 
-    load_weight:
+    load_weight: ./results/exp_18/models/model_55.h5
+    #load_weight: 
