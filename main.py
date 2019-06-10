@@ -41,7 +41,6 @@ def make_env(env_type, params):
         return SimplePopulationDynamics(params)
 
 
-params = read_yaml('config.yaml')
 
 
 
@@ -52,7 +51,9 @@ def main():
 @main.command()
 @click.option('--env_type', required=True)
 @click.option('--experiment_id', help='Experiment Id', required=True, type=int)
-def ddqn(env_type, experiment_id):
+@click.option('--config_file', help='config file', type=str, default='./configs/config.yaml')
+def ddqn(env_type, experiment_id, config_file):
+    params = read_yaml(config_file)
     params['model_type'] = 'DDQN'
     params['env_type'] = env_type
     params['experiment_id'] = experiment_id
@@ -84,7 +85,9 @@ def ddqn(env_type, experiment_id):
 @main.command()
 @click.option('--env_type', required=True)
 @click.option('--experiment_id', help='Experiment Id', required=True, type=int)
-def dqn(env_type, experiment_id):
+@click.option('--config_file', help='config file', type=str, default='./configs/config.yaml')
+def dqn(env_type, experiment_id, config_file):
+    params = read_yaml(config_file)
     params['model_type'] = 'DQN'
     params['env_type'] = env_type
     params['experiment_id'] = experiment_id

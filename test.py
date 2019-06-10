@@ -26,6 +26,7 @@ argparser.add_argument('--prey_num', type=int, default=None)
 argparser.add_argument('--width', type=int, default=None)
 argparser.add_argument('--height', type=int, default=None)
 argparser.add_argument('--video_flag', type=str2bool, nargs='?', const=True, default=False)
+argparser.add_argument('--config_file', type=str, default='./configs/config.yaml')
 
 args = argparser.parse_args()
 
@@ -69,7 +70,6 @@ def dqn(params, env_type, experiment_id, test_id):
 
 
 if __name__ == '__main__':
-
     params = load_config(args.path_prefix)
 
     if args.predator_num is not None:

@@ -52,4 +52,5 @@ parameters:
 
     cpu_cores: 4
 
-    load_weight:
+    #load_weight: ./results/exp_18/models/model_55.h5
+    load_weight: 
