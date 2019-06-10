@@ -21,6 +21,7 @@ parameters:
     prey_increase_prob: 0.006
     predator_increase_prob: 0.003
     crossover_scope: 3
+    health_increase_rate:
 
     # models
     learning_rate: 0.001

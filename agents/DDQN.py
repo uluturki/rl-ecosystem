@@ -27,7 +27,7 @@ class DDQN(nn.Module):
 
         self.num_actions = action_size
         self.loss_func = loss_func
-        self.video_flag= False
+        self.video_flag= args.video_flag
 
         self.gamma = gamma
 
@@ -197,11 +197,7 @@ class DDQN(nn.Module):
             #self.env.make_video(images, outvid=os.path.join(img_dir, 'episode_{:d}.avi'.format(rounds)))
             self.save_model(model_dir, episode)
 
-    def test(self, model_file,
-              test_step=200000):
-        self.q_net = torch.load(model_file)
-
-
+    def test(self, test_step=200000):
         total_reward = 0
         bar = tqdm()
 
