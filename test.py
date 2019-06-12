@@ -12,7 +12,7 @@ import argparse
 from attrdict import AttrDict
 from garl_gym.scenarios.simple_population_dynamics_ga import SimplePopulationDynamicsGA
 from garl_gym.scenarios.simple_population_dynamics import SimplePopulationDynamics
-from utils import str2bool
+from utils import str2bool, make_video
 
 
 argparser = argparse.ArgumentParser()
@@ -27,6 +27,10 @@ argparser.add_argument('--width', type=int, default=None)
 argparser.add_argument('--height', type=int, default=None)
 argparser.add_argument('--video_flag', type=str2bool, nargs='?', const=True, default=False)
 argparser.add_argument('--config_file', type=str, default='./configs/config.yaml')
+argparser.add_argument('--multiprocessing', type=str2bool, default=False)
+argparser.add_argument('--cpu_cores', type=int, default=None)
+argparser.add_argument('--predator_increase_prob', type=float, default=None)
+argparser.add_argument('--prey_increase_prob', type=float, default=None)
 
 args = argparser.parse_args()
 
@@ -82,6 +86,10 @@ if __name__ == '__main__':
     if args.width is not None:
         params.width = args.width
 
+    if args.multiprocessing and args.cpu_cores is not None:
+        params.multiprocessing = args.multiprocessing
+        params.cpu_cores = args.cpu_cores
+
     params.video_flag = args.video_flag
 
     if params['model_type'] == 'DDQN':
@@ -90,4 +98,18 @@ if __name__ == '__main__':
         dqn(params, params['env_type'], args.experiment_id, args.test_id)
     else:
         raise NotImplementedError
+
+    if args.predator_increase_prob is not None:
+        params.predator_increase_prob = args.predator_increase_prob
+    if args.prey_increase_prob is not None:
+        params.prey_increase_prob = args.prey_increase_prob
+
+    if args.video_flag == True:
+        img_dir = os.path.join(args.path_prefix, 'test_images', str(args.test_id))
+        st = 0
+        ed = len(os.listdir(img_dir))
+        images = [os.path.join(img_dir, '{:d}.png'.format(i+1)) for i in range(st, ed)]
+
+        make_video(images, os.path.join(img_dir, 'video.avi'))
+
 

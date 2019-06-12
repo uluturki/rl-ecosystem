@@ -181,16 +181,15 @@ class DDQN(nn.Module):
                     if i % 5 == 0:
                         self.env.increase_prey(self.args.prey_increase_prob)
                         self.env.increase_predator(self.args.predator_increase_prob)
+                    if len(self.env.predators) < 2 or len(self.env.preys) < 2 or len(self.env.preys) > 10000 or len(self.env.predators) > 10000:
+                        log.close()
+                        break
                 else:
                     self.env.crossover_prey(self.args.crossover_scope, crossover_rate=self.args.prey_increase_prob)
                     self.env.crossover_predator(self.args.crossover_scope, crossover_rate=self.args.predator_increase_prob)
 
                 if i % update_period:
                     self.update_params()
-
-                if len(self.env.predators) < 1 or len(self.env.preys) < 1 or len(self.env.preys) > 10000 or len(self.env.predators) > 10000:
-                    log.close()
-                    break
 
 
             #images = [os.path.join(img_dir, ("{:d}.png".format(j+1))) for j in range(timesteps)]
