@@ -178,7 +178,7 @@ class DDQN(nn.Module):
                 timesteps += 1
 
                 if self.args.env_type == 'simple_population_dynamics':
-                    if i % 5 == 0:
+                    if i % self.args.increase_every == 0:
                         self.env.increase_prey(self.args.prey_increase_prob)
                         self.env.increase_predator(self.args.predator_increase_prob)
                     if len(self.env.predators) < 2 or len(self.env.preys) < 2 or len(self.env.preys) > 10000 or len(self.env.predators) > 10000:
@@ -267,7 +267,7 @@ class DDQN(nn.Module):
             self.remove_dead_agent_emb(killed)
 
             if self.args.env_type == 'simple_population_dynamics':
-                if i % 5 == 0:
+                if i % self.args.increase_every == 0:
                     self.env.increase_prey(self.args.prey_increase_prob)
                     self.env.increase_predator(self.args.predator_increase_prob)
             else:

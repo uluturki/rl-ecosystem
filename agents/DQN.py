@@ -102,7 +102,8 @@ class DQN(nn.Module):
                 actions = []
                 ids = []
                 action_batches = []
-                obs = self.env.render(only_view=True)
+                #obs = self.env.render(only_view=True)
+                obs = get_obs(self.env, only_view=True)
                 view_batches = []
                 view_ids = []
                 view_values_list = []
@@ -125,7 +126,11 @@ class DQN(nn.Module):
                 num_batches = j
 
                 actions = dict(zip(ids, actions))
-                next_view_batches, rewards = self.env.step(actions)
+                #next_view_batches, rewards = self.env.step(actions)
+
+                self.env.take_actions(actions)
+                next_view_batches, rewards, killed = get_obs(self.env)
+                self.env.killed = killed
                 episode_reward += np.sum(list(rewards.values()))
                 total_reward += (episode_reward / len(obs))
 
@@ -180,7 +185,7 @@ class DQN(nn.Module):
                 timesteps += 1
 
                 if self.args.env_type == 'simple_population_dynamics':
-                    if i % 5 == 0:
+                    if i % self.args.increase_every == 0:
                         self.env.increase_prey(self.args.prey_increase_prob)
                         self.env.increase_predator(self.args.predator_increase_prob)
                     if len(self.env.predators) < 1 or len(self.env.preys) < 1 or len(self.env.preys) > 10000 or len(self.env.predators) > 10000:
@@ -284,7 +289,7 @@ class DQN(nn.Module):
                 self.env.remove_dead_agent_emb(killed)
 
             if self.args.env_type == 'simple_population_dynamics':
-                if i % 5 == 0:
+                if i % self.args.increase_every == 0:
                     self.env.increase_prey(self.args.prey_increase_prob)
                     self.env.increase_predator(self.args.predator_increase_prob)
             else:
