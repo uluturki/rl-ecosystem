@@ -18,8 +18,8 @@ parameters:
     wall_prob: 0.005
     wall_seed: 20
     food_prob: 0
-    prey_increase_prob: 0.006
-    predator_increase_prob: 0.003
+    prey_increase_prob: 0.1
+    predator_increase_prob: 0.04
     crossover_scope: 5
     health_increase_rate: 4
     increase_every: 1
@@ -57,4 +57,4 @@ parameters:
     multiprocessing: True
 
     # Reward Setting
-    get_closer_reward: 0.2
+    get_closer_reward: 0
