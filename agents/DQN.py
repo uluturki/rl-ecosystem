@@ -13,7 +13,7 @@ import gc
 #from torch.utils.tensorboard import SummaryWriter
 import shutil
 from utils import plot_dynamics
-from garl_gym.scenarios.simple_population_dynamics import *
+from garl_gym import scenarios
 
 
 class DQN(nn.Module):
@@ -52,6 +52,11 @@ class DQN(nn.Module):
               max_greedy=0.9,
               greedy_step=6000,
               update_period=10):
+
+        if self.args.env_type == 'simple_population_dynamics':
+            get_obs = scenarios.simple_population_dynamics.get_obs
+        elif self.args.env_type == 'simple_population_dynamics_ga':
+            get_obs = scenarios.simple_population_dynamics_ga.get_obs
 
         eps_greedy = min_greedy
         g_step = (max_greedy - min_greedy) / greedy_step
@@ -212,6 +217,10 @@ class DQN(nn.Module):
             self.save_model(model_dir, episode)
 
     def test(self, test_step=200000):
+        if self.args.env_type == 'simple_population_dynamics':
+            get_obs = scenarios.simple_population_dynamics.get_obs
+        elif self.args.env_type == 'simple_population_dynamics_ga':
+            get_obs = scenarios.simple_population_dynamics_ga.get_obs
 
         total_reward = 0
         bar = tqdm()

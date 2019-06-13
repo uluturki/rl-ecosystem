@@ -1,5 +1,5 @@
 parameters:
-    predator_num: 2000
+    predator_num: 1000
     prey_num: 1000
     num_actions: 4
     height: 400
@@ -10,26 +10,26 @@ parameters:
     max_acceleration: 1
     width: 400
     batch_size: 512
-    vision_width: 10
-    vision_height: 10
+    vision_width: 7
+    vision_height: 7
     max_health: 1.0
     min_health: 0.5
     max_crossover: 3
     wall_prob: 0.005
     wall_seed: 20
     food_prob: 0
-    prey_increase_prob: 0.01
-    predator_increase_prob: 0.005
-    crossover_scope: 3
+    prey_increase_prob: 0.006
+    predator_increase_prob: 0.003
+    crossover_scope: 5
     health_increase_rate: 4
     increase_every: 1
 
     # models
     learning_rate: 0.001
-    input_dim: 55
-    #input_dim: 7
-    #hidden_dims: [32, 32]
-    hidden_dims: [16, 8]
+    #input_dim: 55
+    input_dim: 7
+    hidden_dims: [32, 32]
+    #hidden_dims: [16, 8]
     action_size: 4
     agent_emb_dim: 3
     gamma: 0.99
@@ -46,13 +46,15 @@ parameters:
 
     # test
     test_step: 200000
-    #obs_type: 'conv' #conv
-    obs_type: 'dense' #conv
+    obs_type: 'conv' #conv
+    #obs_type: 'dense' #conv
 
     video_flag: False
 
     cpu_cores: 4
 
-    #load_weight: ./results/exp_10/models/model_99.h5
     load_weight:
     multiprocessing: True
+
+    # Reward Setting
+    get_closer_reward: 0.2
