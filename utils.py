@@ -7,6 +7,9 @@ import argparse
 from cv2 import imread, VideoWriter
 import cv2
 
+def plot_dyversity(log_file, st):
+    raise NotImplementedError
+
 def plot_dynamics(log_file, st):
     prey_num = []
     predator_num = []
@@ -26,7 +29,9 @@ def plot_dynamics(log_file, st):
     sns.set_style("darkgrid")
     plt.plot(x[st:ed], predator_num[st:ed])
     plt.plot(x[st:ed], prey_num[st:ed])
-    plt.legend(['predators', 'preys'])
+    plt.legend(['Predators', 'Preys'])
+    plt.xlabel('Timestep')
+    plt.ylabel('Number of Agents')
     plt.show()
 
     plt.savefig(os.path.join(os.path.dirname(log_file),'agent_num_plot.png'))
@@ -67,9 +72,9 @@ def plot_circle(log_file, st):
 
     plt.figure(figsize=(8, 6))
     plt.plot(predator_num_avg, prey_num_avg, label='number')
-    plt.xlabel('predator number')
-    plt.ylabel('prey number')
-    plt.legend(['predator number', 'prey number'], loc='upper left')
+    plt.xlabel('Number of predator agents')
+    plt.ylabel('Number of prey agents')
+ #   plt.legend(['predator number', 'prey number'], loc='upper left')
     plt.grid()
     plt.savefig(os.path.join(os.path.dirname(log_file),'circle.png'))
 

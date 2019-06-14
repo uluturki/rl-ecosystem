@@ -18,11 +18,13 @@ parameters:
     wall_prob: 0.005
     wall_seed: 20
     food_prob: 0
-    prey_increase_prob: 0.006
-    predator_increase_prob: 0.003
+    prey_increase_prob: 0.01
+    predator_increase_prob: 0.005
     crossover_scope: 9
-    health_increase_rate: 1
+    health_increase_rate: 4
     increase_every: 1
+    max_predator_offsprings: 3
+    max_prey_offsprings: 3
 
     # models
     learning_rate: 0.001

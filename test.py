@@ -11,6 +11,7 @@ from agents.DDQN import DDQN
 import argparse
 from attrdict import AttrDict
 from garl_gym.scenarios.simple_population_dynamics_ga import SimplePopulationDynamicsGA
+from garl_gym.scenarios.simple_population_dynamics_ga_utility import SimplePopulationDynamicsGAUtility
 from garl_gym.scenarios.simple_population_dynamics import SimplePopulationDynamics
 from utils import str2bool, make_video
 
@@ -39,6 +40,8 @@ def make_env(env_type, params):
         return SimplePopulationDynamicsGA(params)
     elif env_type == 'simple_population_dynamics':
         return SimplePopulationDynamics(params)
+    elif env_type == 'simple_population_dynamics_ga_utility':
+        return SimplePopulationDynamicsGAUtility(params)
 
 
 def load_config(path_prefix):

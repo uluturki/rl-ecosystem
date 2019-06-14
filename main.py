@@ -4,6 +4,7 @@ from attrdict import AttrDict
 import yaml
 
 from garl_gym.scenarios.simple_population_dynamics_ga import SimplePopulationDynamicsGA
+from garl_gym.scenarios.simple_population_dynamics_ga_utility import SimplePopulationDynamicsGAUtility
 from garl_gym.scenarios.simple_population_dynamics import SimplePopulationDynamics
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -19,6 +20,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import shutil
+from trainer import Trainer
 
 def read_yaml(path):
     f = open(path, 'r')
@@ -39,6 +41,8 @@ def make_env(env_type, params):
         return SimplePopulationDynamicsGA(params)
     elif env_type == 'simple_population_dynamics':
         return SimplePopulationDynamics(params)
+    elif env_type == 'simple_population_dynamics_ga_utility':
+        return SimplePopulationDynamicsGAUtility(params)
 
 
 
@@ -114,6 +118,40 @@ def dqn(env_type, experiment_id, config_file):
                 params.max_greedy,
                 params.greedy_step,
                 params.update_period)
+
+@main.command(name='dqn_two_agents')
+@click.option('--env_type', required=True)
+@click.option('--experiment_id', help='Experiment Id', required=True, type=int)
+@click.option('--config_file', help='config file', type=str, default='./configs/config.yaml')
+def dqn_two_agents(env_type, experiment_id, config_file):
+    params = read_yaml(config_file)
+    params['model_type'] = 'DQN'
+    params['env_type'] = env_type
+    params['experiment_id'] = experiment_id
+
+    save_config(params, experiment_id)
+    env = make_env(env_type, params)
+    env.make_world(wall_prob=0.02, wall_seed=20, food_prob=0)
+    if params['load_weight'] is None:
+        if params['obs_type'] == 'conv':
+            q_net = QNetConv(params.input_dim)
+        else:
+            q_net = QNet(params.vision_width*params.vision_height*4+5)
+    else:
+        q_net = torch.load(params['load_weight'])
+    agent_predator = DQN(params,
+                env,
+                q_net,
+                nn.MSELoss(),
+                optim.RMSprop)
+    agent_prey = DQN(params,
+                env,
+                q_net,
+                nn.MSELoss(),
+                optim.RMSprop)
+
+    trainer = Trainer(params, env)
+    trainer.train(agent_predator, agent_prey)
 
 if __name__ == '__main__':
     main()

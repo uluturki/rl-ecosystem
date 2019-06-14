@@ -30,8 +30,10 @@ class QNetConv(nn.Module):
         super(QNetConv, self).__init__()
         self.num_actions = action_size
         self.conv1 = nn.Conv2d(input_dim, hidden_dims[0], 3, padding=1, stride=2)
-        self.conv2 = nn.Conv2d(hidden_dims[0], hidden_dims[1], 3, padding=1)
+        self.conv2 = nn.Conv2d(hidden_dims[0], hidden_dims[1], 3, padding=1, stride=2)
+        #self.conv2 = nn.Conv2d(hidden_dims[0], hidden_dims[1], 3, padding=1)
         #self.conv1 = nn.Conv2D(hidden_dims[1], hidden_dims[2])
+        #self.l1 = nn.Linear(hidden_dims[1]*4*4, action_size)
         self.l1 = nn.Linear(hidden_dims[1]*4*4, action_size)
 
         if torch.cuda.is_available():

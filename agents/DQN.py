@@ -57,6 +57,8 @@ class DQN(nn.Module):
             get_obs = scenarios.simple_population_dynamics.get_obs
         elif self.args.env_type == 'simple_population_dynamics_ga':
             get_obs = scenarios.simple_population_dynamics_ga.get_obs
+        elif self.args.env_type == 'simple_population_dynamics_ga_utility':
+            get_obs = scenarios.simple_population_dynamics_ga_utility.get_obs
 
         eps_greedy = min_greedy
         g_step = (max_greedy - min_greedy) / greedy_step
@@ -76,7 +78,8 @@ class DQN(nn.Module):
             total_reward = 0
             bar = tqdm()
 
-            if episode == 0 or len(self.env.predators) == 0 or len(self.env.preys) == 0 or len(self.env.preys)>10000 or len(self.env.predators)>10000:
+
+            if episode==0 or len(self.env.predators) < 2 or len(self.env.preys) < 2 or len(self.env.preys) > 10000 or len(self.env.predators) > 10000:
                 obs = self.env.reset()
 
                 img_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_id), 'images',str(rounds))
@@ -216,11 +219,43 @@ class DQN(nn.Module):
             #self.env.make_video(images, outvid=os.path.join(img_dir, 'episode_{:d}.avi'.format(rounds)))
             self.save_model(model_dir, episode)
 
+    def update(self, view_values, action_batches, next_view_values, view_id, rewards):
+        z = self.q_net(view_values)
+        z = z.gather(1, Variable(torch.Tensor(action_batches)).view(len(view_values), 1).type(self.dlongtype))
+
+        next_q_values = self.target_q_net(next_view_values).max(1)[0].detach()
+
+        reward_value = []
+        for id in view_id:
+            if id in rewards:
+                reward_value.append(rewards[id])
+            else:
+                reward_value.append(0.)
+
+        reward_value = np.array(reward_value)
+        target = Variable(torch.from_numpy(reward_value)).type(self.dtype) + next_q_values * self.gamma
+        target = target.detach().view(len(target), 1) # we do not want to do back-propagation
+
+        l = self.loss_func(z, target)
+
+        self.opt.zero_grad()
+
+        l.backward()
+        #clip_grad_norm(self.q_net.parameters(), 1.)
+        #torch.nn.utils.clip_grad_norm_(self.q_net.parameters(), 1.)
+        self.opt.step()
+        return l.cpu().detach().data.numpy()
+
+    def take_action(self, batch_view):
+        return self.q_net(batch_view).max(1)[1].cpu().numpy()
+
     def test(self, test_step=200000):
         if self.args.env_type == 'simple_population_dynamics':
             get_obs = scenarios.simple_population_dynamics.get_obs
         elif self.args.env_type == 'simple_population_dynamics_ga':
             get_obs = scenarios.simple_population_dynamics_ga.get_obs
+        elif self.args.env_type == 'simple_population_dynamics_ga_utility':
+            get_obs = scenarios.simple_population_dynamics_ga_utility.get_obs
 
         total_reward = 0
         bar = tqdm()
@@ -313,8 +348,11 @@ class DQN(nn.Module):
         #self.env.make_video(images, outvid=os.path.join(img_dir, 'episode_{:d}.avi')
 
 
-    def save_model(self, model_dir, episode):
-        torch.save(self.q_net, os.path.join(model_dir, "model_{:d}.h5".format(episode)))
+    def save_model(self, model_dir, episode, file_name=None):
+        if file_name is None:
+            torch.save(self.q_net, os.path.join(model_dir, "model_{:d}.h5".format(episode)))
+        else:
+            torch.save(self.q_net, os.path.join(model_dir, file_name))
 
 
 
