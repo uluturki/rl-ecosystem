@@ -209,7 +209,7 @@ class Trainer():
 
             log_file = os.path.join(log_dir, 'log.txt')
             plot_dynamics(log_file, 0)
-            msg = "episode {:03d} avg loss:{:5.4f} avg predator reward:{:5.3f} avg prey reward:{:5.3f} eps_greedy {:5.3f}".format(episode, loss/(i+1), predator_total_reward/(i+1), prey_total-reward/(i+1),eps_greedy)
+            msg = "episode {:03d} avg loss:{:5.4f} avg predator reward:{:5.3f} avg prey reward:{:5.3f} eps_greedy {:5.3f}".format(episode, loss/(i+1), predator_total_reward/(i+1), prey_total_reward/(i+1),eps_greedy)
             bar.set_description(msg)
             bar.update(0)
             bar.refresh()
@@ -217,6 +217,6 @@ class Trainer():
 
             #images = [os.path.join(img_dir, ("{:d}.png".format(j+1))) for j in range(timesteps)]
             #self.env.make_video(images, outvid=os.path.join(img_dir, 'episode_{:d}.avi'.format(rounds)))
-            self.agent_predator.save_model(model_dir, episode, 'model_predator_{:d}.h5'.format(episode))
-            self.agent_prey.save_model(model_dir, episode, 'model_prey_{:d}.h5'.format(episode))
+            agent_predator.save_model(model_dir, episode, 'model_predator_{:d}.h5'.format(episode))
+            agent_prey.save_model(model_dir, episode, 'model_prey_{:d}.h5'.format(episode))
 

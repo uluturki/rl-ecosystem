@@ -12,7 +12,7 @@ from tqdm import tqdm
 import gc
 #from torch.utils.tensorboard import SummaryWriter
 import shutil
-from utils import plot_dynamics
+from utils import plot_dynamics, plot_diversity
 from garl_gym import scenarios
 
 
@@ -281,6 +281,10 @@ class DQN(nn.Module):
         for i in range(test_step):
             if self.video_flag:
                 self.env.dump_image(os.path.join(img_dir, '{:d}.png'.format(timesteps+1)))
+
+            if self.args.env_type == 'simple_population_dynamics_ga_utility' and i % 200 == 0:
+                plot_diversity(self.env.predators.values(), self.env.preys.values(), log_dir, i)
+
 
             actions = []
             ids = []

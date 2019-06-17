@@ -6,9 +6,82 @@ import seaborn as sns
 import argparse
 from cv2 import imread, VideoWriter
 import cv2
+import shutil
 
-def plot_dyversity(log_file, st):
-    raise NotImplementedError
+def plot_diversity(predators, preys, prefix_path, step):
+    predator_liking_list = []
+    predator_physical_list = []
+    predator_environmental_condition_list = []
+    prey_liking_list = []
+    prey_physical_list = []
+    prey_environmental_condition_list = []
+
+    dir_name = os.path.join(prefix_path, 'diversity', str(step))
+
+    try:
+        os.makedirs(dir_name)
+    except:
+        shutil.rmtree(dir_name)
+        os.makedirs(dir_name)
+
+    for predator in predators:
+        predator_liking_list.append(predator.liking)
+        predator_physical_list.append(predator.physical)
+        predator_environmental_condition_list.append(predator.environmental_condition)
+
+    plt.figure()
+    sns.set_style("darkgrid")
+    plt.scatter(predator_liking_list, predator_physical_list)
+    plt.xlabel('Liking')
+    plt.ylabel('Physical')
+    plt.show()
+    plt.savefig(os.path.join(dir_name, 'predator_diversity_like_vs_physical.png'))
+
+    plt.figure()
+    sns.set_style("darkgrid")
+    plt.scatter(predator_liking_list, predator_environmental_condition_list)
+    plt.xlabel('Liking')
+    plt.ylabel('Environmental Condition')
+    plt.show()
+    plt.savefig(os.path.join(dir_name, 'predator_diversity_like_vs_environmental.png'))
+
+    sns.set_style("darkgrid")
+    plt.figure()
+    plt.scatter(predator_environmental_condition_list, predator_physical_list)
+    plt.xlabel('Environmental Condition')
+    plt.ylabel('Physical')
+    plt.show()
+    plt.savefig(os.path.join(dir_name, 'predator_diversity_environmental_vs_physical.png'))
+
+    for prey in preys:
+        prey_liking_list.append(prey.liking)
+        prey_physical_list.append(prey.physical)
+        prey_environmental_condition_list.append(prey.environmental_condition)
+
+    plt.figure()
+    sns.set_style("darkgrid")
+    plt.scatter(prey_liking_list, prey_physical_list)
+    plt.xlabel('Liking')
+    plt.ylabel('Physical')
+    plt.show()
+    plt.savefig(os.path.join(dir_name, 'prey_diversity_like_vs_physical.png'))
+
+    plt.figure()
+    sns.set_style("darkgrid")
+    plt.scatter(prey_liking_list, prey_environmental_condition_list)
+    plt.xlabel('Liking')
+    plt.ylabel('Environmental Condition')
+    plt.show()
+    plt.savefig(os.path.join(dir_name, 'prey_diversity_like_vs_environmental.png'))
+
+    plt.figure()
+    sns.set_style("darkgrid")
+    plt.scatter(prey_environmental_condition_list, prey_physical_list)
+    plt.xlabel('Environmental Condition')
+    plt.ylabel('Physical')
+    plt.show()
+    plt.savefig(os.path.join(dir_name, 'prey_diversity_environmental_vs_physical.png'))
+
 
 def plot_dynamics(log_file, st):
     prey_num = []

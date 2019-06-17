@@ -57,4 +57,4 @@ parameters:
     multiprocessing: True
 
     # Reward Setting
-    get_closer_reward: 0
+    get_closer_reward: 0.2
