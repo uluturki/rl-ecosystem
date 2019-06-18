@@ -84,7 +84,7 @@ class Trainer():
                     self.env.dump_image(os.path.join(img_dir, '{:d}.png'.format(timesteps+1)))
 
                 eps_greedy += g_step
-                eps_greedy += np.clip(eps_greedy, self.args.min_greedy, self.args.max_greedy)
+                eps_greedy = np.clip(eps_greedy, self.args.min_greedy, self.args.max_greedy)
 
 
                 predator_actions = []
@@ -181,7 +181,7 @@ class Trainer():
                     self.env.remove_dead_agent_emb(killed)
 
                 loss += (loss_batch/(j+1))
-                msg = "episode {:03d} episode step {:03d} loss:{:5.4f} predator_reward:{:5.3f} prey_reward:{:5.3f} eps_greedy {:5.3f}".format(episode, i, loss_batch/(j+1), predator_episode_reward/len(predator_obs), prey_episode_reward, eps_greedy)
+                msg = "episode {:03d} episode step {:03d} loss:{:5.4f} predator_reward:{:5.3f} prey_reward:{:5.3f} eps_greedy {:5.3f}".format(episode, i, loss_batch/(j+1), predator_episode_reward/len(predator_obs), prey_episode_reward/len(prey_obs), eps_greedy)
                 bar.set_description(msg)
                 bar.update(1)
 
