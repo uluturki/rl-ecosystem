@@ -12,6 +12,7 @@ from tqdm import tqdm
 import gc
 #from torch.utils.tensorboard import SummaryWriter
 import shutil
+from garl_gym import scenarios
 
 
 class DDQN(nn.Module):
@@ -50,6 +51,12 @@ class DDQN(nn.Module):
               max_greedy=0.9,
               greedy_step=5000,
               update_period=20):
+        if self.args.env_type == 'simple_population_dynamics':
+            get_obs = scenarios.simple_population_dynamics.get_obs
+        elif self.args.env_type == 'simple_population_dynamics_ga':
+            get_obs = scenarios.simple_population_dynamics_ga.get_obs
+        elif self.args.env_type == 'simple_population_dynamics_ga_utility':
+            get_obs = scenarios.simple_population_dynamics_ga_utility.get_obs
 
         eps_greedy = min_greedy
         g_step = (max_greedy - min_greedy) / greedy_step
@@ -99,7 +106,8 @@ class DDQN(nn.Module):
                 actions = []
                 ids = []
                 action_batches = []
-                obs = self.env.render(only_view=True)
+                #obs = self.env.render(only_view=True)
+                obs = get_obs(self.env, only_view=True)
                 view_batches = []
                 view_ids = []
                 view_values_list = []
@@ -122,7 +130,10 @@ class DDQN(nn.Module):
                 num_batches = j
 
                 actions = dict(zip(ids, actions))
-                next_view_batches, rewards = self.env.step(actions)
+                #next_view_batches, rewards = self.env.step(actions)
+                self.env.take_actions(actions)
+                next_view_batches, rewards, killed = get_obs(self.env)
+                self.env.killed = killed
                 episode_reward += np.sum(list(rewards.values()))
                 total_reward += (episode_reward / len(obs))
 
