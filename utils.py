@@ -83,21 +83,21 @@ def plot_diversity(predators, preys, prefix_path, step):
     plt.savefig(os.path.join(dir_name, 'prey_diversity_environmental_vs_physical.png'))
 
 
-def plot_dynamics(log_file, st, mode='two_agents'):
+def plot_dynamics(log_file, st):
     prey_num = []
     predator_num = []
     with open(log_file)as fin:
         for line in fin:
             line = line.split()
-            if len(line) == 12:
-                prey_num.append(int(line[9]))
-                predator_num.append(int(line[11]))
-            elif len(line) == 10:
-                prey_num.append(int(line[7]))
-                predator_num.append(int(line[9]))
-            elif len(line) == 14:
-                prey_num.append(int(line[9]))
-                predator_num.append(int(line[11]))
+            #if len(line) == 12:
+            #    prey_num.append(int(line[9]))
+            #    predator_num.append(int(line[11]))
+            #elif len(line) == 10:
+            prey_num.append(int(line[7]))
+            predator_num.append(int(line[9]))
+            #elif len(line) == 14:
+            #    prey_num.append(int(line[9]))
+            #    predator_num.append(int(line[11]))
     ed = len(predator_num)
 
     x = range(len(prey_num))

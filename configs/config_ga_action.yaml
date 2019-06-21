@@ -1,9 +1,9 @@
 parameters:
     predator_num: 1000
     prey_num: 1000
-    num_actions: 4
-    height: 600
-    width: 600
+    num_actions: 5
+    height: 700
+    width: 700
     damage_per_step: 0.01
     img_length: 5
     max_hunt_square: 5
@@ -21,7 +21,7 @@ parameters:
     prey_increase_prob: 0.006
     predator_increase_prob: 0.003
     crossover_scope: 9
-    health_increase_rate: 4
+    health_increase_rate: 3
     increase_every: 1
 
     # models
@@ -30,12 +30,11 @@ parameters:
     input_dim: 7
     hidden_dims: [32, 32]
     #hidden_dims: [16, 8]
-    action_size: 4
     agent_emb_dim: 3
     gamma: 0.99
 
     # training
-    episodes: 500
+    episodes: 10000
     batch_size: 128
     episode_step: 500
     random_step: 5000
@@ -57,4 +56,4 @@ parameters:
     multiprocessing: True
 
     # Reward Setting
-    get_closer_reward: 0
+    get_closer_reward: 0.2
