@@ -32,6 +32,7 @@ argparser.add_argument('--multiprocessing', type=str2bool, default=False)
 argparser.add_argument('--cpu_cores', type=int, default=None)
 argparser.add_argument('--predator_increase_prob', type=float, default=None)
 argparser.add_argument('--prey_increase_prob', type=float, default=None)
+argparser.add_argument('--wall_prob', type=float, default=None)
 
 args = argparser.parse_args()
 
@@ -52,7 +53,7 @@ def ddqn(params, env_type, experiment_id, test_id):
     params['experiment_id'] = experiment_id
     params['test_id'] = test_id
     env = make_env(env_type, params)
-    env.make_world(wall_prob=0.02, wall_seed=20, food_prob=0)
+    env.make_world(wall_prob=params.wall_prob, wall_seed=20, food_prob=0)
     q_net = torch.load(args.model_file).cuda()
     agent = DDQN(params,
                 env,
@@ -66,7 +67,7 @@ def dqn(params, env_type, experiment_id, test_id):
     params['test_id'] = test_id
 
     env = make_env(env_type, params)
-    env.make_world(wall_prob=0.02, wall_seed=20, food_prob=0)
+    env.make_world(wall_prob=params.wall_prob, wall_seed=20, food_prob=0)
     q_net = torch.load(args.model_file).cuda()
     agent = DQN(params,
                 env,
@@ -92,6 +93,8 @@ if __name__ == '__main__':
     if args.multiprocessing and args.cpu_cores is not None:
         params.multiprocessing = args.multiprocessing
         params.cpu_cores = args.cpu_cores
+    if args.wall_prob is not None:
+        params.wall_prob = args.wall_prob
 
     params.video_flag = args.video_flag
 

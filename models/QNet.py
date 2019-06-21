@@ -7,12 +7,12 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 
 class QNet(nn.Module):
-    def __init__(self, input_dim, hidden_dims=[32, 32], action_size=4):
+    def __init__(self, input_dim, hidden_dims=[32, 32], num_actions=4):
         super(QNet, self).__init__()
-        self.num_actions = action_size
+        self.num_actions = num_actions
         self.l1 = nn.Linear(input_dim, hidden_dims[0])
         self.l2 = nn.Linear(hidden_dims[0], hidden_dims[1])
-        self.l3 = nn.Linear(hidden_dims[1], action_size)
+        self.l3 = nn.Linear(hidden_dims[1], num_actions)
 
         if torch.cuda.is_available():
             self.dtype = torch.cuda.FloatTensor
@@ -26,15 +26,15 @@ class QNet(nn.Module):
         return t
 
 class QNetConv(nn.Module):
-    def __init__(self, input_dim, hidden_dims=[32, 32], action_size=4):
+    def __init__(self, input_dim, hidden_dims=[32, 32], num_actions=4):
         super(QNetConv, self).__init__()
-        self.num_actions = action_size
+        self.num_actions = num_actions
         self.conv1 = nn.Conv2d(input_dim, hidden_dims[0], 3, padding=1, stride=2)
         self.conv2 = nn.Conv2d(hidden_dims[0], hidden_dims[1], 3, padding=1, stride=2)
         #self.conv2 = nn.Conv2d(hidden_dims[0], hidden_dims[1], 3, padding=1)
         #self.conv1 = nn.Conv2D(hidden_dims[1], hidden_dims[2])
-        #self.l1 = nn.Linear(hidden_dims[1]*4*4, action_size)
-        self.l1 = nn.Linear(hidden_dims[1]*4*4, action_size)
+        self.l1 = nn.Linear(hidden_dims[1]*4*4, num_actions)
+        #self.l1 = nn.Linear(hidden_dims[1]*6*6, num_actions)
 
         if torch.cuda.is_available():
             self.dtype = torch.cuda.FloatTensor

@@ -18,16 +18,16 @@ from garl_gym import scenarios
 
 class DQN(nn.Module):
     def __init__(self, args, env, q_net, loss_func, opt, lr=0.001,
-                 input_dim=55, hidden_dims=[32, 32], action_size=4, agent_emb_dim=5,
+                 input_dim=55, hidden_dims=[32, 32],
                  gamma=0.99):
         super(DQN, self).__init__()
         self.args = args
         self.obs_type = args.obs_type
         self.env = env
-        self.agent_emb_dim = agent_emb_dim
+        self.agent_emb_dim = args.agent_emb_dim
         self.agent_embeddings = {}
 
-        self.num_actions = action_size
+        self.num_actions = args.num_actions
         self.loss_func = loss_func
         self.video_flag= args.video_flag
 
@@ -59,6 +59,9 @@ class DQN(nn.Module):
             get_obs = scenarios.simple_population_dynamics_ga.get_obs
         elif self.args.env_type == 'simple_population_dynamics_ga_utility':
             get_obs = scenarios.simple_population_dynamics_ga_utility.get_obs
+        elif self.args.env_type == 'simple_population_dynamics_ga_action':
+            get_obs = scenarios.simple_population_dynamics_ga_action.get_obs
+            assert self.num_actions == 5, 'Expected the number of actions 5, but got {:d}'.format(self.num_actions)
 
         eps_greedy = min_greedy
         g_step = (max_greedy - min_greedy) / greedy_step
@@ -66,7 +69,7 @@ class DQN(nn.Module):
         #eps_greedy = 0.9
 
         rounds = 0
-        model_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_id), 'models')
+        model_dir = os.path.join('results', self.args.env_type, 'exp_{:d}'.format(self.args.experiment_id), 'models')
         try:
             os.makedirs(model_dir)
         except:
@@ -82,8 +85,8 @@ class DQN(nn.Module):
             if episode==0 or len(self.env.predators) < 2 or len(self.env.preys) < 2 or len(self.env.preys) > 10000 or len(self.env.predators) > 10000:
                 obs = self.env.reset()
 
-                img_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_id), 'images',str(rounds))
-                log_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_id), 'logs', str(rounds))
+                img_dir = os.path.join('results', self.args.env_type, 'exp_{:d}'.format(self.args.experiment_id), 'images',str(rounds))
+                log_dir = os.path.join('results', self.args.env_type, 'exp_{:d}'.format(self.args.experiment_id), 'logs', str(rounds))
                 try:
                     os.makedirs(img_dir)
                 except:
@@ -175,6 +178,9 @@ class DQN(nn.Module):
                     #torch.nn.utils.clip_grad_norm_(self.q_net.parameters(), 1.)
                     self.opt.step()
                     loss_batch += l.cpu().detach().data.numpy()
+
+                increase_predators = self.env.increase_predators
+                increase_preys = self.env.increase_preys
                 killed = self.env.remove_dead_agents()
                 if self.obs_type == 'dense':
                     self.remove_dead_agent_emb(killed)
@@ -187,7 +193,7 @@ class DQN(nn.Module):
                 bar.set_description(msg)
                 bar.update(1)
 
-                info = "Episode\t{:03d}\tStep\t{:03d}\tReward\t{:5.3f}\tnum_agents\t{:d}\tnum_preys\t{:d}\tnum_predators\t{:d}".format(episode, i, episode_reward/len(obs), len(self.env.agents), len(self.env.preys), len(self.env.predators))
+                info = "Step\t{:03d}\tReward\t{:5.3f}\tnum_agents\t{:d}\tnum_preys\t{:d}\tnum_predators\t{:d}\tincrease_predators\t{:d}\tincrease_preys\t{:d}\tkilled_agents\t{:d}".format(i, episode_reward/len(obs), len(self.env.agents), len(self.env.preys), len(self.env.predators),increase_predators, increase_preys, len(killed))
                 log.write(info+'\n')
                 log.flush()
                 timesteps += 1
@@ -196,7 +202,7 @@ class DQN(nn.Module):
                     if i % self.args.increase_every == 0:
                         self.env.increase_prey(self.args.prey_increase_prob)
                         self.env.increase_predator(self.args.predator_increase_prob)
-                else:
+                elif self.args.env_type != 'simple_population_dynamics_ga_action':
                     self.env.crossover_prey(self.args.crossover_scope, crossover_rate=self.args.prey_increase_prob)
                     #self.env.increase_prey(self.args.prey_increase_prob)
                     self.env.crossover_predator(self.args.crossover_scope, crossover_rate=self.args.predator_increase_prob)
@@ -257,13 +263,16 @@ class DQN(nn.Module):
             get_obs = scenarios.simple_population_dynamics_ga.get_obs
         elif self.args.env_type == 'simple_population_dynamics_ga_utility':
             get_obs = scenarios.simple_population_dynamics_ga_utility.get_obs
+        elif self.args.env_type == 'simple_population_dynamics_ga_action':
+            get_obs = scenarios.simple_population_dynamics_ga_action.get_obs
+            assert self.num_actions == 5, 'Expected the number of actions 5, but got {:d}'.format(self.num_actions)
 
         total_reward = 0
         bar = tqdm()
 
 
-        img_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_id), 'test_images', str(self.args.test_id))
-        log_dir = os.path.join('results', 'exp_{:d}'.format(self.args.experiment_id), 'test_logs', str(self.args.test_id))
+        img_dir = os.path.join('results', self.args.env_type, 'exp_{:d}'.format(self.args.experiment_id), 'test_images', str(self.args.test_id))
+        log_dir = os.path.join('results', self.args.env_type, 'exp_{:d}'.format(self.args.experiment_id), 'test_logs', str(self.args.test_id))
 
         try:
             os.makedirs(img_dir)
@@ -327,7 +336,7 @@ class DQN(nn.Module):
             bar.set_description(msg)
             bar.update(1)
 
-            info = "Step\t{:03d}\tReward\t{:5.3f}\tnum_agents\t{:d}\tnum_preys\t{:d}\tnum_predators\t{:d}".format(i, total_reward/len(obs), len(self.env.agents), len(self.env.preys), len(self.env.predators))
+            info = "Step\t{:03d}\tReward\t{:5.3f}\tnum_agents\t{:d}\tnum_preys\t{:d}\tnum_predators\t{:d}\tincrease_predators\t{:d}\tincrease_preys\t{:d}".format(i, total_reward/len(obs), len(self.env.agents), len(self.env.preys), len(self.env.predators), self.env.increase_predators, self.env.increase_preys)
             log.write(info+'\n')
             log.flush()
             timesteps += 1
@@ -341,7 +350,7 @@ class DQN(nn.Module):
                 if i % self.args.increase_every == 0:
                     self.env.increase_prey(self.args.prey_increase_prob)
                     self.env.increase_predator(self.args.predator_increase_prob)
-            else:
+            elif self.args.env_type != 'simple_population_dynamics_ga_action':
                 self.env.crossover_prey(self.args.crossover_scope, crossover_rate=self.args.prey_increase_prob)
                 self.env.crossover_predator(self.args.crossover_scope, crossover_rate=self.args.predator_increase_prob)
 
