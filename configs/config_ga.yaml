@@ -10,24 +10,22 @@ parameters:
     max_acceleration: 1
     width: 600
     batch_size: 512
-    vision_width: 15
-    vision_height: 15
+    vision_width: 21
+    vision_height: 21
     max_health: 1.0
     min_health: 0.5
     max_crossover: 3
     wall_prob: 0.005
     wall_seed: 20
     food_prob: 0
-    prey_increase_prob: 0.006
-    predator_increase_prob: 0.006
-    crossover_scope: 9
-    health_increase_rate: 3
+    prey_increase_prob: 0.008
+    predator_increase_prob: 0.012
+    crossover_scope: 13
+    health_increase_rate: 4
     increase_every: 1
-    max_predator_offsprings: 2
-    max_prey_offsprings: 2
 
     # models
-    learning_rate: 0.0005
+    learning_rate: 0.0001
     #input_dim: 55
     input_dim: 7
     hidden_dims: [32, 32]
