@@ -5,23 +5,23 @@ parameters:
     height: 600
     damage_per_step: 0.01
     img_length: 5
-    max_hunt_square: 5
+    max_hunt_square: 7
     max_speed: 1
     max_acceleration: 1
     width: 600
     batch_size: 512
-    vision_width: 21
-    vision_height: 21
+    vision_width: 27
+    vision_height: 27
     max_health: 1.0
     min_health: 0.5
     max_crossover: 3
     wall_prob: 0.005
     wall_seed: 20
     food_prob: 0
-    prey_increase_prob: 0.008
-    predator_increase_prob: 0.012
-    crossover_scope: 13
-    health_increase_rate: 4
+    prey_increase_prob: 0.016
+    predator_increase_prob: 0.01
+    crossover_scope: 15
+    health_increase_rate: 3
     increase_every: 1
 
     # models
@@ -58,4 +58,4 @@ parameters:
 
     # Reward Setting
     get_closer_reward: 0
-    #comment: 'Crossover for predator and normal increasing for prey'
+    comment: 'No reward for crossover'
