@@ -10,7 +10,7 @@ from garl_gym.scenarios.simple_population_dynamics import SimplePopulationDynami
 from garl_gym.scenarios.simple_population_dynamics_rule_base import SimplePopulationDynamicsRuleBase
 import matplotlib.pyplot as plt
 import seaborn as sns
-from models.QNet import QNet, QNetConv
+from models.QNet import QNet, QNetConv, QNetConvWithID
 from agents.DQN import DQN
 from agents.DDQN import DDQN
 from agents.rule_base import run_rulebase
@@ -49,6 +49,18 @@ def make_env(env_type, params):
     elif env_type == 'simple_population_dynamics_ga_action':
         return SimplePopulationDynamicsGAAction(params)
 
+def create_nn(params):
+    if params['load_weight'] is None:
+        if params['obs_type'] == 'conv':
+            q_net = QNetConv(params.input_dim, hidden_dims=params.hidden_dims, num_actions=params.num_actions)
+        elif params['obs_type'] == 'conv_with_id':
+            q_net = QNetConvWithID(params.input_dim, hidden_dims=params.hidden_dims, num_actions=params.num_actions, agent_emb_dim=params.agent_emb_dim)
+        else:
+            q_net = QNet(params.vision_width*params.vision_height*4+5, hidden_dims=params.hidden_dims, num_actions=params.num_actions)
+    else:
+        q_net = torch.load(params['load_weight'])
+    return q_net
+
 
 
 
@@ -70,13 +82,7 @@ def ddqn(env_type, experiment_id, config_file):
     save_config(params, experiment_id)
     env = make_env(env_type, params)
     env.make_world(wall_prob=params.wall_prob, wall_seed=20, food_prob=0)
-    if params['load_weight'] is None:
-        if params['obs_type'] == 'conv':
-            q_net = QNetConv(params.input_dim, hidden_dims=params.hidden_dims, num_actions=params.num_actions)
-        else:
-            q_net = QNet(params.vision_width*params.vision_height*4+5, hidden_dims=params.hidden_dims, num_actions=params.num_actions)
-    else:
-        q_net = torch.load(params['load_weight'])
+    q_net = create_nn(params)
     agent = DDQN(params,
                 env,
                 q_net,
@@ -104,13 +110,7 @@ def dqn(env_type, experiment_id, config_file):
     save_config(params, experiment_id)
     env = make_env(env_type, params)
     env.make_world(wall_prob=params.wall_prob, wall_seed=20, food_prob=0)
-    if params['load_weight'] is None:
-        if params['obs_type'] == 'conv':
-            q_net = QNetConv(params.input_dim, hidden_dims=params.hidden_dims, num_actions=params.num_actions)
-        else:
-            q_net = QNet(params.vision_width*params.vision_height*4+5, hidden_dims=params.hidden_dims, num_actions=params.num_actions)
-    else:
-        q_net = torch.load(params['load_weight'])
+    q_net = create_nn(params)
     agent = DQN(params,
                 env,
                 q_net,
@@ -133,13 +133,7 @@ def dqn_two_agents(env_type, experiment_id, config_file):
     save_config(params, experiment_id)
     env = make_env(env_type, params)
     env.make_world(wall_prob=params.wall_prob, wall_seed=20, food_prob=0)
-    if params['load_weight'] is None:
-        if params['obs_type'] == 'conv':
-            q_net = QNetConv(params.input_dim, hidden_dims=params.hidden_dims, num_actions=params.num_actions)
-        else:
-            q_net = QNet(params.vision_width*params.vision_height*4+5, hidden_dims=params.hidden_dims, num_actions=params.num_actions)
-    else:
-        q_net = torch.load(params['load_weight'])
+    q_net = create_nn(params)
     agent_predator = DQN(params,
                 env,
                 q_net,
