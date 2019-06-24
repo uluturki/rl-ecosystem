@@ -120,16 +120,28 @@ class DQN(nn.Module):
                 view_batches = []
                 view_ids = []
                 view_values_list = []
+                view_agent_embeddings_list = []
+
 
                 for j in range(len(obs)//self.args.batch_size+1):
                     view = obs[j*self.args.batch_size:(j+1)*self.args.batch_size]
                     if len(view) == 0:
                         continue
-                    batch_id, batch_view = self.process_view_with_emb_batch(view)
-                    if np.random.rand() < eps_greedy:
-                        action = self.q_net(batch_view).max(1)[1].cpu().numpy()
+
+                    if self.obs_type == 'conv_with_id':
+                        batch_id, batch_view, batch_agent_embeddings = self.process_view_with_emb_batch(view)
+                        view_agent_embeddings_list.append(batch_agent_embeddings)
+                        if np.random.rand() < eps_greedy:
+                            action = self.q_net(batch_view, batch_agent_embeddings).max(1)[1].cpu().numpy()
+                        else:
+                            action = np.random.randint(self.num_actions, size=len(batch_view))
                     else:
-                        action = np.random.randint(self.num_actions, size=len(batch_view))
+                        batch_id, batch_view = self.process_view_with_emb_batch(view)
+                        if np.random.rand() < eps_greedy:
+                            action = self.q_net(batch_view).max(1)[1].cpu().numpy()
+                        else:
+                            action = np.random.randint(self.num_actions, size=len(batch_view))
+
                     ids.extend(batch_id)
                     actions.extend(action)
                     action_batches.append(action)
@@ -153,12 +165,18 @@ class DQN(nn.Module):
                     view_id = view_ids[j]
                     view_values = view_values_list[j]
                     next_view = obs[j*self.args.batch_size:(j+1)*self.args.batch_size]
-                    next_view_id, next_view_values = self.process_view_with_emb_batch(next_view)
-                    #z = self.q_net(Variable(torch.from_numpy(view_values)).type(self.dtype))
-                    z = self.q_net(view_values)
+                    if self.obs_type == 'conv_with_id':
+                        next_view_id, next_view_values, next_agent_embeddings = self.process_view_with_emb_batch(next_view)
+                        z = self.q_net(view_values, view_agent_embeddings_list[j])
+                    else:
+                        next_view_id, next_view_values = self.process_view_with_emb_batch(next_view)
+                        z = self.q_net(view_values)
                     z = z.gather(1, Variable(torch.Tensor(action_batches[j])).view(len(view_values), 1).type(self.dlongtype))
 
-                    next_q_values = self.target_q_net(next_view_values).max(1)[0].detach()
+                    if self.obs_type == 'conv_with_id':
+                        next_q_values = self.target_q_net(next_view_values, next_agent_embeddings).max(1)[0].detach()
+                    else:
+                        next_q_values = self.target_q_net(next_view_values).max(1)[0].detach()
 
                     reward_value = []
                     for id in view_id:
@@ -184,7 +202,7 @@ class DQN(nn.Module):
                 increase_predators = self.env.increase_predators
                 increase_preys = self.env.increase_preys
                 killed = self.env.remove_dead_agents()
-                if self.obs_type == 'dense':
+                if self.obs_type == 'dense' or self.obs_type == 'conv_with_id':
                     self.remove_dead_agent_emb(killed)
                 else:
                     self.env.remove_dead_agent_emb(killed)
@@ -311,13 +329,19 @@ class DQN(nn.Module):
             view_batches = []
             view_ids = []
             view_values_list = []
+            view_agent_embeddings_list = []
 
             for j in range(len(obs)//self.args.batch_size+1):
                 view = obs[j*self.args.batch_size:(j+1)*self.args.batch_size]
                 if len(view) == 0:
                     continue
-                batch_id, batch_view = self.process_view_with_emb_batch(view)
-                action = self.q_net(batch_view).max(1)[1].cpu().numpy()
+                if self.obs_type == 'conv_with_id':
+                    batch_id, batch_vbiew, batch_agent_embeddings = self.process_view_with_emb_batch(view)
+                    action = self.q_net(batch_view, batch_agent_embeddings).max(1)[1].cpu().numpy()
+                    view_agent_embeddings_list.append(batch_agent_embeddings)
+                else:
+                    batch_id, batch_view = self.process_view_with_emb_batch(view)
+                    action = self.q_net(batch_view).max(1)[1].cpu().numpy()
                 ids.extend(batch_id)
                 actions.extend(action)
                 action_batches.append(action)
@@ -388,20 +412,34 @@ class DQN(nn.Module):
     def process_view_with_emb_batch(self, input_view):
         batch_id = []
         batch_view = []
+        batch_embeddings = []
+
         if self.obs_type == 'conv':
             batch_id, batch_view = zip(*input_view)
         else:
+            if self.obs_type == 'conv_with_id':
+                batch_id, batch_view = zip(*input_view)
             for id, view in input_view:
-                if id in self.agent_embeddings:
-                    new_view = np.concatenate((self.agent_embeddings[id], view), 0)
-                    batch_view.append(new_view)
-                    batch_id.append(id)
+                if self.obs_type == 'dense':
+                    if id in self.agent_embeddings:
+                        new_view = np.concatenate((self.agent_embeddings[id], view), 0)
+                        batch_view.append(new_view)
+                        batch_id.append(id)
+                    else:
+                        new_embedding = np.random.normal(size=[self.agent_emb_dim])
+                        self.agent_embeddings[id] = new_embedding
+                        new_view = np.concatenate((new_embedding, view), 0)
+                        batch_view.append(new_view)
+                        batch_id.append(id)
                 else:
-                    new_embedding = np.random.normal(size=[self.agent_emb_dim])
-                    self.agent_embeddings[id] = new_embedding
-                    new_view = np.concatenate((new_embedding, view), 0)
-                    batch_view.append(new_view)
-                    batch_id.append(id)
+                    if id in self.agent_embeddings:
+                        batch_embeddings.append(self.agent_embeddings[id])
+                    else:
+                        new_embedding = np.random.normal(size=[self.agent_emb_dim])
+                        self.agent_embeddings[id] = new_embedding
+                        batch_embeddings.append(self.agent_embeddings[id])
+        if self.obs_type == 'conv_with_id':
+            return batch_id, Variable(torch.from_numpy(np.array(batch_view))).type(self.dtype), Variable(torch.from_numpy(np.array(batch_embeddings))).type(self.dtype)
         return batch_id, Variable(torch.from_numpy(np.array(batch_view))).type(self.dtype)
 
     def remove_dead_agent_emb(self, dead_list):
