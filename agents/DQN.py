@@ -82,7 +82,9 @@ class DQN(nn.Module):
             bar = tqdm()
 
 
-            if episode==0 or len(self.env.predators) < 2 or len(self.env.preys) < 2 or len(self.env.preys) > 15000 or len(self.env.predators) > 15000:
+            #if episode==0 or len(self.env.predators) < 2 or len(self.env.preys) < 2 or len(self.env.preys) > 15000 or len(self.env.predators) > 15000:
+            if episode==0:
+                #or len(self.env.predators) < 2 or len(self.env.preys) < 2 or len(self.env.preys) > 15000 or len(self.env.predators) > 15000:
                 obs = self.env.reset()
 
                 img_dir = os.path.join('results', self.args.env_type, 'exp_{:d}'.format(self.args.experiment_id), 'images',str(rounds))
@@ -203,12 +205,17 @@ class DQN(nn.Module):
                         self.env.increase_prey(self.args.prey_increase_prob)
                         self.env.increase_predator(self.args.predator_increase_prob)
                 elif self.args.env_type != 'simple_population_dynamics_ga_action':
-                    self.env.crossover_prey(self.args.crossover_scope, crossover_rate=self.args.prey_increase_prob)
-                    #self.env.increase_prey(self.args.prey_increase_prob)
-                    self.env.crossover_predator(self.args.crossover_scope, crossover_rate=self.args.predator_increase_prob)
-                if len(self.env.predators) < 2 or len(self.env.preys) < 2 or len(self.env.preys) > 15000 or len(self.env.predators) > 15000:
-                    log.close()
-                    break
+                    if len(self.env.preys) < 7000 and len(self.env.preys) > 2:
+                        self.env.crossover_prey(self.args.crossover_scope, crossover_rate=self.args.prey_increase_prob)
+                    if len(self.env.predators) < 7000 and len(self.env.predators)>2:
+                        self.env.crossover_predator(self.args.crossover_scope, crossover_rate=self.args.predator_increase_prob)
+                    if len(self.env.preys) <= 2:
+                        self.env.add_preys(2)
+                    if len(self.env.predators) <= 2:
+                        self.env.add_predators(2)
+                #if len(self.env.predators) < 2 or len(self.env.preys) < 2 or len(self.env.preys) > 15000 or len(self.env.predators) > 15000:
+                #    log.close()
+                #    break
 
                 if i % update_period:
                     self.update_params()
