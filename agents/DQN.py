@@ -174,7 +174,7 @@ class DQN(nn.Module):
                     self.opt.zero_grad()
 
                     l.backward()
-                    #clip_grad_norm(self.q_net.parameters(), 1.)
+                    clip_grad_norm(self.q_net.parameters(), 1.)
                     #torch.nn.utils.clip_grad_norm_(self.q_net.parameters(), 1.)
                     self.opt.step()
                     loss_batch += l.cpu().detach().data.numpy()

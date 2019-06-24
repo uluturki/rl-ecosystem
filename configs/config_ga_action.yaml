@@ -18,8 +18,8 @@ parameters:
     wall_prob: 0.005
     wall_seed: 20
     food_prob: 0
-    prey_increase_prob: 0.7
-    predator_increase_prob: 0.7
+    prey_increase_prob: 1
+    predator_increase_prob: 1
     crossover_scope: 11
     health_increase_rate: 3
     increase_every: 1
@@ -34,13 +34,13 @@ parameters:
     gamma: 0.99
 
     # training
-    episodes: 10000
+    episodes: 100000
     batch_size: 128
     episode_step: 500
     random_step: 5000
-    min_greedy: 0.3
-    max_greedy: 0.9
-    greedy_step: 15000
+    min_greedy: 0.005
+    max_greedy: 0.99
+    greedy_step: 500000
     update_period: 4
 
     # test
