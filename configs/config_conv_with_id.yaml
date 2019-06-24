@@ -1,0 +1,61 @@
+parameters:
+    predator_num: 1000
+    prey_num: 1000
+    num_actions: 4
+    height: 500
+    damage_per_step: 0.01
+    img_length: 5
+    max_hunt_square: 7
+    max_speed: 1
+    max_acceleration: 1
+    width: 500
+    batch_size: 512
+    vision_width: 27
+    vision_height: 27
+    max_health: 1.0
+    min_health: 0.5
+    max_crossover: 3
+    wall_prob: 0.005
+    wall_seed: 20
+    food_prob: 0
+    prey_increase_prob: 0.015
+    predator_increase_prob: 0.003
+    crossover_scope: 19
+    health_increase_rate: 1.5
+    increase_every: 1
+
+    # models
+    learning_rate: 0.0001
+    #input_dim: 55
+    input_dim: 4
+    hidden_dims: [32, 32]
+    #hidden_dims: [64, 32]
+    action_size: 4
+    #agent_emb_dim: 3
+    agent_emb_dim: 5
+    gamma: 0.99
+
+    # training
+    episodes: 500
+    batch_size: 128
+    episode_step: 500
+    random_step: 5000
+    min_greedy: 0.005
+    max_greedy: 0.99
+    greedy_step: 200000
+    update_period: 4
+
+    # test
+    test_step: 200000
+    obs_type: 'conv_with_id' #conv
+
+    video_flag: False
+
+    cpu_cores: 4
+
+    load_weight:
+    multiprocessing: True
+
+    # Reward Setting
+    get_closer_reward: 0
+    comment: 'No reward for crossover'

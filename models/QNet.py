@@ -57,7 +57,7 @@ class QNetConvWithID(nn.Module):
         #self.conv2 = nn.Conv2d(hidden_dims[0], hidden_dims[1], 3, padding=1)
         #self.conv1 = nn.Conv2D(hidden_dims[1], hidden_dims[2])
         self.embedding = nn.Linear(agent_emb_dim, agent_emb_hidden)
-        self.l1 = nn.Linear(hidden_dims[1]*6*6+agent_emb_hidden, num_actions)
+        self.l1 = nn.Linear(hidden_dims[1]*7*7+agent_emb_hidden, num_actions)
         #self.l1 = nn.Linear(hidden_dims[1]*6*6, num_actions)
 
         if torch.cuda.is_available():
