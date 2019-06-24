@@ -1,14 +1,14 @@
 parameters:
-    predator_num: 1000
+    predator_num: 800
     prey_num: 1000
     num_actions: 4
-    height: 600
+    height: 500
     damage_per_step: 0.01
     img_length: 5
     max_hunt_square: 7
     max_speed: 1
     max_acceleration: 1
-    width: 600
+    width: 500
     batch_size: 512
     vision_width: 27
     vision_height: 27
@@ -18,10 +18,10 @@ parameters:
     wall_prob: 0.005
     wall_seed: 20
     food_prob: 0
-    prey_increase_prob: 0.016
-    predator_increase_prob: 0.01
-    crossover_scope: 15
-    health_increase_rate: 3
+    prey_increase_prob: 0.012
+    predator_increase_prob: 0.003
+    crossover_scope: 19
+    health_increase_rate: 4
     increase_every: 1
 
     # models
@@ -40,9 +40,9 @@ parameters:
     batch_size: 128
     episode_step: 500
     random_step: 5000
-    min_greedy: 0.3
-    max_greedy: 0.9
-    greedy_step: 50000
+    min_greedy: 0.005
+    max_greedy: 0.99
+    greedy_step: 200000
     update_period: 4
 
     # test
