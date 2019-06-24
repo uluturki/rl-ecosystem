@@ -1,5 +1,5 @@
 parameters:
-    predator_num: 800
+    predator_num: 1000
     prey_num: 1000
     num_actions: 4
     height: 500
@@ -18,10 +18,10 @@ parameters:
     wall_prob: 0.005
     wall_seed: 20
     food_prob: 0
-    prey_increase_prob: 0.012
+    prey_increase_prob: 0.02
     predator_increase_prob: 0.003
     crossover_scope: 19
-    health_increase_rate: 4
+    health_increase_rate: 1.5
     increase_every: 1
 
     # models
@@ -41,7 +41,7 @@ parameters:
     random_step: 5000
     min_greedy: 0.005
     max_greedy: 0.99
-    greedy_step: 200000
+    greedy_step: 100000
     update_period: 4
 
     # test
@@ -59,3 +59,5 @@ parameters:
     # Reward Setting
     get_closer_reward: 0
     comment: 'No reward for crossover'
+
+    min_crossover_age: 100
