@@ -10,8 +10,8 @@ parameters:
     max_speed: 1
     max_acceleration: 1
     batch_size: 512
-    vision_width: 15
-    vision_height: 15
+    vision_width: 27
+    vision_height: 27
     max_health: 1.0
     min_health: 0.5
     wall_prob: 0.005

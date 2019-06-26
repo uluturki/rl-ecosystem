@@ -12,8 +12,8 @@ class DRQNet(nn.Module):
         super(DRQNet, self).__init__()
         self.num_actions = num_actions
         self.conv1 = nn.Conv2d(input_dim, hidden_dims[0], 4, padding=1, stride=4)
-        self.conv2 = nn.Conv2d(hidden_dims[0], hidden_dims[1], 3, padding=1, stride=2)
-        self.conv3 = nn.Conv2d(hidden_dims[1], hidden_dims[2], 3, padding=1, stride=2)
+        self.conv2 = nn.Conv2d(hidden_dims[0], hidden_dims[1], 3, padding=1, stride=3)
+        self.conv3 = nn.Conv2d(hidden_dims[1], hidden_dims[2], 3, padding=1, stride=3)
         self.embedding = nn.Linear(agent_emb_dim, agent_emb_hidden)
         #self.lstm_layer = nn.LSTM(input_size=256, hidden_size=256, num_layers=1, batch_first=True)
         self.lstm_layer = nn.LSTMCell(lstm_input, lstm_out)
