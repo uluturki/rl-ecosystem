@@ -10,9 +10,11 @@ from garl_gym.scenarios.simple_population_dynamics import SimplePopulationDynami
 from garl_gym.scenarios.simple_population_dynamics_rule_base import SimplePopulationDynamicsRuleBase
 import matplotlib.pyplot as plt
 import seaborn as sns
-from models.QNet import QNet, QNetConv, QNetConvWithID
+from models.QNet import QNet, QNetConv
+from models.DRQNet import DRQNet
 from agents.DQN import DQN
 from agents.DDQN import DDQN
+from agents.DRQN import DRQN
 from agents.rule_base import run_rulebase
 import argparse
 import cv2
@@ -51,10 +53,12 @@ def make_env(env_type, params):
 
 def create_nn(params):
     if params['load_weight'] is None:
-        if params['obs_type'] == 'conv':
-            q_net = QNetConv(params.input_dim, hidden_dims=params.hidden_dims, num_actions=params.num_actions)
-        elif params['obs_type'] == 'conv_with_id':
-            q_net = QNetConvWithID(params.input_dim, hidden_dims=params.hidden_dims, num_actions=params.num_actions, agent_emb_dim=params.agent_emb_dim)
+        #if params['obs_type'] == 'conv':
+        #    q_net = QNetConv(params.input_dim, hidden_dims=params.hidden_dims, num_actions=params.num_actions)
+        if params['model_type'] == 'DRQN':
+            q_net = DRQNet(params.input_dim, params.lstm_input, params.lstm_out, hidden_dims=params.hidden_dims, num_actions=params.num_actions, agent_emb_dim=params.agent_emb_dim)
+        elif params['obs_type'] == 'conv':
+            q_net = QNetConv(params.input_dim, hidden_dims=params.hidden_dims, num_actions=params.num_actions, agent_emb_dim=params.agent_emb_dim)
         else:
             q_net = QNet(params.vision_width*params.vision_height*4+5, hidden_dims=params.hidden_dims, num_actions=params.num_actions)
     else:
@@ -161,6 +165,33 @@ def rule_base(experiment_id, config_file):
     env.make_world(wall_prob=params.wall_prob, wall_seed=20, food_prob=0)
 
     run_rulebase(env, params)
+
+
+@main.command(name='drqn')
+@click.option('--env_type', required=True)
+@click.option('--experiment_id', help='Experiment Id', required=True, type=int)
+@click.option('--config_file', help='config file', type=str, default='./configs/config.yaml')
+def dqn(env_type, experiment_id, config_file):
+    params = read_yaml(config_file)
+    params['model_type'] = 'DRQN'
+    params['env_type'] = env_type
+    params['experiment_id'] = experiment_id
+
+    save_config(params, experiment_id)
+    env = make_env(env_type, params)
+    env.make_world(wall_prob=params.wall_prob, wall_seed=20, food_prob=0)
+    q_net = create_nn(params)
+    agent = DRQN(params,
+                env,
+                q_net,
+                nn.MSELoss(),
+                optim.RMSprop)
+    agent.train(params.episodes,
+                params.episode_step,
+                params.random_step, params.min_greedy, params.max_greedy, params.greedy_step,
+                params.update_period)
+
+
 
 if __name__ == '__main__':
     main()

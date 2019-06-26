@@ -138,7 +138,7 @@ class DDQN(nn.Module):
                 total_reward += (episode_reward / len(obs))
 
                 loss_batch = 0
-                for j in range(num_batches):
+                for j in range(num_batches+1):
                     #view_id, view_values = self.process_view_with_emb_batch(view)
                     view_id = view_ids[j]
                     view_values = view_values_list[j]

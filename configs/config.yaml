@@ -23,25 +23,28 @@ parameters:
     crossover_scope: 9
     health_increase_rate: 4
     increase_every: 1
+    time_step: 4
 
     # models
     learning_rate: 0.001
     #input_dim: 55
-    input_dim: 7
-    hidden_dims: [32, 32]
+    input_dim: 4
+    hidden_dims: [32, 64, 256]
     #hidden_dims: [16, 8]
     action_size: 4
-    agent_emb_dim: 3
+    agent_emb_dim: 5
     gamma: 0.99
+    lstm_input: 256
+    lstm_out: 256
 
     # training
     episodes: 500
     batch_size: 128
     episode_step: 500
     random_step: 5000
-    min_greedy: 0.3
-    max_greedy: 0.9
-    greedy_step: 15000
+    min_greedy: 0.005
+    max_greedy: 0.99
+    greedy_step: 100000
     update_period: 4
 
     # test
@@ -58,3 +61,5 @@ parameters:
 
     # Reward Setting
     get_closer_reward: 0
+
+

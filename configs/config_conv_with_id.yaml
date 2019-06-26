@@ -49,7 +49,7 @@ parameters:
     test_step: 200000
     obs_type: 'conv_with_id' #conv
 
-    video_flag: False
+    video_flag: True
 
     cpu_cores: 4
 
