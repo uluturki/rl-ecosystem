@@ -48,6 +48,7 @@ class DRQN(nn.Module):
         self.opt = opt(self.q_net.parameters(), lr)
         self.target_q_net = deepcopy(q_net).type(self.dtype)
 
+    @profile
     def train(self,
               episodes=100,
               episode_step=500,
@@ -366,38 +367,50 @@ class DRQN(nn.Module):
             actions = []
             ids = []
             action_batches = []
-            #obs = self.env.render(only_view=True)
+            view_batches = []
+            view_ids = []
+            view_values_list = []
+            view_agent_embeddings_list = []
+            hidden_states = []
+            cell_states = []
             obs = get_obs(self.env, only_view=True)
             num_batches = len(obs)//self.args.batch_size
             if len(obs) > self.args.batch_size*num_batches:
                 num_batches += 1
-            for j in range(self.args.time_step):
-                actions = []
-                view_agent_embeddings_list = []
-                hidden_states = []
-                cell_states = []
-                for k in range(num_batches):
-                    view = current_obs[k*self.args.batch_size:(k+1)*self.args.batch_size]
-                    batch_id, batch_view, batch_agent_embeddings, hidden_state, cell_state = self.process_view_with_emb_batch(view)
-                    view_agent_embeddings_list.append(batch_agent_embeddings)
-                    out, _ ,_= self.q_net(batch_view, batch_agent_embeddings, hidden_state, cell_state)
-                    action = out.max(1)[1].cpu().numpy()
+            for k in range(num_batches):
+                view = obs[k*self.args.batch_size:(k+1)*self.args.batch_size]
 
-                    actions.extend(action)
-                    hidden_states.append(hidden_state)
-                    cell_states.append(cell_state)
+                batch_id, batch_view, batch_agent_embeddings, hidden_state, cell_state = self.process_view_with_emb_batch(view, is_states=True)
+                view_agent_embeddings_list.append(batch_agent_embeddings)
+                out, hidden_state , cell_state = self.q_net(batch_view, batch_agent_embeddings, hidden_state, cell_state)
 
-                actions = dict(zip(ids, actions))
-                trained_env.take_actions(actions)
-            next_view_batches, rewards, killed = get_obs(self.env)
+                hidden_state = hidden_state.detach().cpu().numpy()
+                cell_state = cell_state.detach().cpu().numpy()
+                self.update_states(batch_id, hidden_state,  cell_state)
+                action = np.random.randint(self.num_actions, size=len(batch_view))
+
+                ids.extend(batch_id)
+                actions.extend(action)
+                action_batches.append(action)
+                view_batches.append(view)
+                view_ids.append(batch_id)
+                view_values_list.append(batch_view)
+                hidden_states.append(hidden_state)
+                cell_states.append(cell_state)
+
+            actions = dict(zip(ids, actions))
+            self.env.take_actions(actions)
+            _, rewards, killed = get_obs(self.env)
             self.env.killed = killed
+
+            increase_predators = self.env.increase_predators
+            increase_preys = self.env.increase_preys
+            killed = self.env.remove_dead_agents()
+            self.remove_dead_agent_emb(killed)
             total_reward += np.sum(list(rewards.values()))
 
             killed = self.env.remove_dead_agents()
-            if self.obs_type == 'dense':
-                self.remove_dead_agent_emb(killed)
-            else:
-                self.env.remove_dead_agent_emb(killed)
+            self.remove_dead_agent_emb(killed)
 
             msg = "episode step {:03d}".format(i)
             bar.set_description(msg)
@@ -408,10 +421,7 @@ class DRQN(nn.Module):
             log.flush()
             timesteps += 1
             killed = self.env.remove_dead_agents()
-            if self.obs_type == 'dense':
-                self.remove_dead_agent_emb(killed)
-            else:
-                self.env.remove_dead_agent_emb(killed)
+            self.remove_dead_agent_emb(killed)
 
             if self.args.env_type == 'simple_population_dynamics':
                 if i % self.args.increase_every == 0:

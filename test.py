@@ -8,6 +8,7 @@ import torch.optim as optim
 from models.QNet import QNet, QNetConv
 from agents.DQN import DQN
 from agents.DDQN import DDQN
+from agents.DRQN import DRQN
 import argparse
 from attrdict import AttrDict
 from garl_gym.scenarios.simple_population_dynamics_ga import SimplePopulationDynamicsGA
@@ -79,6 +80,20 @@ def dqn(params, env_type, experiment_id, test_id):
                 optim.RMSprop)
     agent.test()
 
+def drqn(params, env_type, experiment_id, test_id):
+    params['experiment_id'] = experiment_id
+    params['test_id'] = test_id
+
+    env = make_env(env_type, params)
+    env.make_world(wall_prob=params.wall_prob, wall_seed=20, food_prob=0)
+    q_net = torch.load(args.model_file).cuda()
+    agent = DRQN(params,
+                env,
+                q_net,
+                nn.MSELoss(),
+                optim.RMSprop)
+    agent.test()
+
 
 if __name__ == '__main__':
     params = load_config(args.path_prefix)
@@ -105,6 +120,8 @@ if __name__ == '__main__':
         ddqn(params, params['env_type'], args.experiment_id, args.test_id)
     elif params['model_type'] == 'DQN':
         dqn(params, params['env_type'], args.experiment_id, args.test_id)
+    elif params['model_type'] == 'DRQN':
+        drqn(params, params['env_type'], args.experiment_id, args.test_id)
     else:
         raise NotImplementedError
 
