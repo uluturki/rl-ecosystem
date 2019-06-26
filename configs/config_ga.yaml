@@ -1,9 +1,9 @@
 parameters:
     predator_num: 1000
-    prey_num: 1500
+    prey_num: 1000
     num_actions: 4
     height: 500
-    damage_per_step: 0.02
+    damage_per_step: 0.01
     img_length: 5
     max_hunt_square: 5
     max_speed: 1
@@ -24,6 +24,7 @@ parameters:
     increase_every: 1
     max_predator_offsprings: 3
     max_prey_offsprings: 3
+    time_step: 4
 
     learning_rate: 0.001
     #input_dim: 55
