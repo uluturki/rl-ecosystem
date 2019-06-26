@@ -221,7 +221,7 @@ class DRQN(nn.Module):
                             reward_value = np.array(reward_value)
                             target = Variable(torch.from_numpy(reward_value)).type(self.dtype) + max_next_q_values * self.gamma
                             target = target.detach().view(len(target), 1) # we do not want to do back-propagation
-                            l = self.loss_func(z, target)
+                            l = self.loss_func(q_value, target)
 
                             self.opt.zero_grad()
 
