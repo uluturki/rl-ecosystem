@@ -48,7 +48,6 @@ class DRQN(nn.Module):
         self.opt = opt(self.q_net.parameters(), lr)
         self.target_q_net = deepcopy(q_net).type(self.dtype)
 
-    @profile
     def train(self,
               episodes=100,
               episode_step=500,
