@@ -202,7 +202,7 @@ class DQN(nn.Module):
                     if i % self.args.increase_every == 0:
                         self.env.increase_prey(self.args.prey_increase_prob)
                         self.env.increase_predator(self.args.predator_increase_prob)
-                elif self.args.env_type != 'simple_population_dynamics_ga_action':
+                elif self.args.env_type in ['simple_population_dynamics_ga', 'simple_population_dynamics_ga_utility']:
                     self.env.crossover_prey(self.args.crossover_scope, crossover_rate=self.args.prey_increase_prob)
                     #self.env.increase_prey(self.args.prey_increase_prob)
                     self.env.crossover_predator(self.args.crossover_scope, crossover_rate=self.args.predator_increase_prob)
