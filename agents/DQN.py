@@ -222,6 +222,10 @@ class DQN(nn.Module):
                     if i % self.args.increase_every == 0:
                         self.env.increase_prey(self.args.prey_increase_prob)
                         self.env.increase_predator(self.args.predator_increase_prob)
+                elif self.args.env_type in ['simple_population_dynamics_ga', 'simple_population_dynamics_ga_utility']:
+                    self.env.crossover_prey(self.args.crossover_scope, crossover_rate=self.args.prey_increase_prob)
+                    #self.env.increase_prey(self.args.prey_increase_prob)
+                    self.env.crossover_predator(self.args.crossover_scope, crossover_rate=self.args.predator_increase_prob)
                 elif self.args.env_type != 'simple_population_dynamics_ga_action':
                     if len(self.env.preys) < 5000 and len(self.env.preys) >= 100:
                         self.env.crossover_prey(self.args.crossover_scope, crossover_rate=self.args.prey_increase_prob)
@@ -231,6 +235,9 @@ class DQN(nn.Module):
                         self.env.add_preys(100-len(self.env.preys))
                     if len(self.env.predators) < 100:
                         self.env.add_predators(100-len(self.env.predators))
+                if len(self.env.predators) < 2 or len(self.env.preys) < 2 or len(self.env.preys) > 10000 or len(self.env.predators) > 10000:
+                    log.close()
+                    break
                 #if len(self.env.predators) < 2 or len(self.env.preys) < 2 or len(self.env.preys) > 15000 or len(self.env.predators) > 15000:
                 #    log.close()
                 #    break

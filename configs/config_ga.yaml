@@ -61,6 +61,5 @@ parameters:
 
     # Reward Setting
     get_closer_reward: 0
-    comment: 'No reward for crossover'
 
     min_crossover_age: 100
