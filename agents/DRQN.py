@@ -271,6 +271,8 @@ class DRQN(nn.Module):
                 actions = dict(zip(ids, actions))
                 self.env.take_actions(actions)
                 _, rewards, killed = get_obs(self.env)
+                episode_reward = np.sum(list(rewards.values()))
+                total_reward += episode_reward
                 self.env.killed = killed
 
                 increase_predators = self.env.increase_predators
