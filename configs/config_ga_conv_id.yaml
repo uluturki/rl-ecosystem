@@ -1,39 +1,41 @@
 parameters:
     predator_num: 1000
-    prey_num: 1000
+    prey_num: 1500
     num_actions: 4
-    height: 600
-    width: 600
-    damage_per_step: 0.01
+    height: 500
+    damage_per_step: 0.02
     img_length: 5
     max_hunt_square: 5
     max_speed: 1
     max_acceleration: 1
+    width: 500
     batch_size: 512
-    vision_width: 15
-    vision_height: 15
+    vision_width: 27
+    vision_height: 27
     max_health: 1.0
     min_health: 0.5
     wall_prob: 0.005
     wall_seed: 20
     food_prob: 0
-    prey_increase_prob: 0.006
-    predator_increase_prob: 0.003
-    health_increase_rate: 2
+    prey_increase_prob: 0.016
+    predator_increase_prob: 0.016
+    crossover_scope: 7
+    health_increase_rate: 3
     increase_every: 1
-    time_step: 4
+    max_predator_offsprings: 3
+    max_prey_offsprings: 3
 
     # models
-    learning_rate: 0.001
+    learning_rate: 0.0001
     #input_dim: 55
+    #input_dim: 7
     input_dim: 4
-    hidden_dims: [32, 64, 256]
-    #hidden_dims: [16, 8]
+    hidden_dims: [32, 32]
+    #hidden_dims: [64, 32]
     action_size: 4
+    #agent_emb_dim: 3
     agent_emb_dim: 5
     gamma: 0.99
-    lstm_input: 256
-    lstm_out: 256
 
     # training
     episodes: 500
@@ -47,10 +49,10 @@ parameters:
 
     # test
     test_step: 200000
-    obs_type: 'conv' #conv
-    #obs_type: 'dense' #conv
+    obs_type: 'conv_with_id' #conv
+    #obs_type: 'conv' #conv
 
-    video_flag: False
+    video_flag: True
 
     cpu_cores: 4
 
@@ -59,5 +61,6 @@ parameters:
 
     # Reward Setting
     get_closer_reward: 0
+    comment: 'No reward for crossover'
 
-
+    min_crossover_age: 100

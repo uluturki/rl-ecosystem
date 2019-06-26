@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import argparse
-from cv2 import imread, VideoWriter
+from cv2 import imread, VideoWriter, resize
 import cv2
 import shutil
 

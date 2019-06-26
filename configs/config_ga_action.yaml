@@ -10,17 +10,17 @@ parameters:
     max_speed: 1
     max_acceleration: 1
     batch_size: 512
-    vision_width: 15
-    vision_height: 15
-    max_health: 1.0
+    vision_width: 27
+    vision_height: 27
+    max_health: 1
     min_health: 0.5
     max_crossover: 3
     wall_prob: 0.005
     wall_seed: 20
     food_prob: 0
-    prey_increase_prob: 0.006
-    predator_increase_prob: 0.003
-    crossover_scope: 9
+    prey_increase_prob: 1
+    predator_increase_prob: 1
+    crossover_scope: 11
     health_increase_rate: 3
     increase_every: 1
 
@@ -34,13 +34,13 @@ parameters:
     gamma: 0.99
 
     # training
-    episodes: 10000
+    episodes: 100000
     batch_size: 128
     episode_step: 500
     random_step: 5000
-    min_greedy: 0.3
-    max_greedy: 0.9
-    greedy_step: 15000
+    min_greedy: 0.005
+    max_greedy: 0.99
+    greedy_step: 500000
     update_period: 4
 
     # test
