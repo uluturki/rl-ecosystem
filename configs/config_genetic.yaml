@@ -1,17 +1,15 @@
 parameters:
-    predator_num: 3000
-    prey_num: 2000
+    predator_num: 1500
+    prey_num: 1000
     num_actions: 4
-    height: 600
+    height: 500
     damage_per_step: 0.01
     img_length: 5
     max_hunt_square: 5
-    max_speed: 1
-    max_acceleration: 1
-    width: 600
-    batch_size: 512
-    vision_width: 27
-    vision_height: 27
+    width: 500
+    batch_size: 256
+    vision_width: 13
+    vision_height: 13
     max_health: 1.0
     min_health: 0.5
     wall_prob: 0.005
@@ -19,18 +17,25 @@ parameters:
     food_prob: 0
     prey_increase_prob: 0.006
     predator_increase_prob: 0.003
-    crossover_scope: 15
+    crossover_scope: 9
     health_increase_rate: 2
     increase_every: 1
     max_predator_offsprings: 1
     max_prey_offsprings: 1
     time_step: 4
-    predator_capacity: 10000
-    prey_capacity: 10000
+    predator_capacity: 8000
+    prey_capacity: 8000
+    min_attack: 1
+    max_attack: 4
+    min_resilience: 1
+    max_resilience: 4
+    min_speed: 1
+    max_speed: 3
+    mutation_prob: 0.001
 
-    learning_rate: 0.0001
+    learning_rate: 0.00001
     #input_dim: 55
-    input_dim: 4
+    input_dim: 7
     hidden_dims: [32, 64, 256]
     #hidden_dims: [16, 8]
     action_size: 4
@@ -46,7 +51,7 @@ parameters:
     random_step: 5000
     min_greedy: 0.5
     #min_greedy: 0.005
-    max_greedy: 0.99
+    max_greedy: 0.95
     #greedy_step: 100000
     greedy_step: 20000
     update_period: 4
@@ -61,6 +66,10 @@ parameters:
     cpu_cores: 4
 
     #load_weight: './results/simple_population_dynamics_ga/exp_20/models/model_405.h5'
+    #load_weight: './results/complex_population_dynamics/exp_9/models/model_45.h5'
+    #load_weight: './results/simple_population_dynamics_ga/exp_21/models/model_200.h5'
+    #load_weight:  './results/simple_population_dynamics_ga/exp_21/models/model_79.h5'
+    #load_weight: './results/genetic_population_dynamics/exp_1/models/model_30.h5'
     load_weight:
     multiprocessing: True
 
@@ -68,3 +77,4 @@ parameters:
     get_closer_reward: 0
 
     min_crossover_age: 100
+    is_embedding: False

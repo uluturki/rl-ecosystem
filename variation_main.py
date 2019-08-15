@@ -9,7 +9,6 @@ from garl_gym.scenarios.simple_population_dynamics_ga_utility import SimplePopul
 from garl_gym.scenarios.simple_population_dynamics import SimplePopulationDynamics
 from garl_gym.scenarios.simple_population_dynamics_rule_base import SimplePopulationDynamicsRuleBase
 from garl_gym.scenarios.complex_population_dynamics import ComplexPopulationDynamics
-from garl_gym.scenarios.genetic_population_dynamics import GeneticPopulationDynamics
 import matplotlib.pyplot as plt
 import seaborn as sns
 from models.QNet import QNet, QNetConv
@@ -33,14 +32,14 @@ def read_yaml(path):
     f = open(path, 'r')
     return AttrDict(yaml.load(f)).parameters
 
-def save_config(params, experiment_id):
-    config_dir = os.path.join('./results', params.env_type, 'exp_{:d}'.format(experiment_id))
+def save_config(params, experiment_id, variation_id):
+    config_dir = os.path.join('./results', params.env_type, 'exp_{:d}'.format(experiment_id), 'variation_logs', str(variation_id))
     try:
         os.makedirs(config_dir)
     except:
         shutil.rmtree(config_dir)
         os.makedirs(config_dir) 
-    with open(os.path.join(config_dir, 'config.txt'), 'w') as f:
+    with open(os.path.join(config_dir, 'variation_config.txt'), 'w') as f:
         f.write(json.dumps(params))
 
 def make_env(env_type, params):
@@ -54,8 +53,6 @@ def make_env(env_type, params):
         return SimplePopulationDynamicsGAAction(params)
     elif env_type == 'complex_population_dynamics':
         return ComplexPopulationDynamics(params)
-    elif env_type == 'genetic_population_dynamics':
-        return GeneticPopulationDynamics(params)
 
 def create_nn(params):
     if params['load_weight'] is None:
@@ -91,7 +88,7 @@ def ddqn(env_type, experiment_id, config_file):
 
     save_config(params, experiment_id)
     env = make_env(env_type, params)
-    env.make_world(wall_prob=params.wall_prob, wall_seed=20, food_prob=0)
+    env.make_world(wall_prob=params.wall_prob, food_prob=0)
     q_net = create_nn(params)
     agent = DDQN(params,
                 env,
@@ -119,7 +116,7 @@ def dqn(env_type, experiment_id, config_file):
 
     save_config(params, experiment_id)
     env = make_env(env_type, params)
-    env.make_world(wall_prob=params.wall_prob, wall_seed=20, food_prob=0)
+    env.make_world(wall_prob=params.wall_prob, food_prob=0)
     q_net = create_nn(params)
     agent = DQN(params,
                 env,
@@ -140,9 +137,10 @@ def dqn_two_agents(env_type, experiment_id, config_file):
     params['model_type'] = 'DQN'
     params['env_type'] = env_type
     params['experiment_id'] = experiment_id
+    params['experiment_type']
     save_config(params, experiment_id)
     env = make_env(env_type, params)
-    env.make_world(wall_prob=params.wall_prob, wall_seed=20, food_prob=0)
+    env.make_world(wall_prob=params.wall_prob, food_prob=0)
     q_net = create_nn(params)
     agent_predator = DQN(params,
                 env,
@@ -168,7 +166,7 @@ def rule_base(experiment_id, config_file):
     save_config(params, experiment_id)
 
     env = SimplePopulationDynamicsRuleBase(params)
-    env.make_world(wall_prob=params.wall_prob, wall_seed=20, food_prob=0)
+    env.make_world(wall_prob=params.wall_prob, food_prob=0)
 
     run_rulebase(env, params)
 
@@ -177,22 +175,28 @@ def rule_base(experiment_id, config_file):
 @click.option('--env_type', required=True)
 @click.option('--experiment_id', help='Experiment Id', required=True, type=int)
 @click.option('--config_file', help='config file', type=str, default='./configs/config.yaml')
-def drqn(env_type, experiment_id, config_file):
+@click.option('--pretrained_weight', type=str, required=True)
+@click.option('--variation_id', type=int, required=True)
+def drqn(env_type, experiment_id, config_file, pretrained_weight, variation_id):
     params = read_yaml(config_file)
     params['model_type'] = 'DRQN'
     params['env_type'] = env_type
     params['experiment_id'] = experiment_id
+    params['experiment_type'] = 'variation'
+    params['pretrained_weight'] = pretrained_weight
+    params['variation_id'] = variation_id
 
-    save_config(params, experiment_id)
+    save_config(params, experiment_id, variation_id)
     env = make_env(env_type, params)
-    env.make_world(wall_prob=params.wall_prob, food_prob=0)
-    q_net = create_nn(params)
+    env.variation_make_world(wall_prob=params.wall_prob)
+
+    q_net = torch.load(pretrained_weight).cuda()
     agent = DRQN(params,
                 env,
                 q_net,
                 nn.MSELoss(),
                 optim.RMSprop)
-    agent.train(params.episodes,
+    agent.train_with_variation(params.episodes,
                 params.episode_step,
                 params.random_step, params.min_greedy, params.max_greedy, params.greedy_step,
                 params.update_period)

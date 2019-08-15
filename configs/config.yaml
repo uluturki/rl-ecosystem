@@ -1,5 +1,5 @@
 parameters:
-    predator_num: 1000
+    predator_num: 1500
     prey_num: 1000
     num_actions: 4
     height: 600
@@ -10,8 +10,8 @@ parameters:
     max_speed: 1
     max_acceleration: 1
     batch_size: 512
-    vision_width: 27
-    vision_height: 27
+    vision_width: 15
+    vision_height: 15
     max_health: 1.0
     min_health: 0.5
     wall_prob: 0.005
@@ -19,12 +19,20 @@ parameters:
     food_prob: 0
     prey_increase_prob: 0.006
     predator_increase_prob: 0.003
-    health_increase_rate: 2
+    health_increase_rate: 4
     increase_every: 1
-    time_step: 4
+    time_step: 3
+    prey_capacity: 20000
+    predator_capacity: 20000
+    min_resilience: 1
+    max_resilience: 2
+    min_attack: 1
+    max_attack: 2
+    min_speed: 1
+    max_speed: 2
 
     # models
-    learning_rate: 0.001
+    learning_rate: 0.0001
     #input_dim: 55
     input_dim: 4
     hidden_dims: [32, 64, 256]
@@ -37,13 +45,12 @@ parameters:
 
     # training
     episodes: 500
-    batch_size: 128
     episode_step: 500
     random_step: 5000
-    min_greedy: 0.005
-    max_greedy: 0.99
-    greedy_step: 100000
-    update_period: 4
+    min_greedy: 0.5
+    max_greedy: 0.90
+    greedy_step: 20000
+    update_period: 8
 
     # test
     test_step: 200000
@@ -54,10 +61,12 @@ parameters:
 
     cpu_cores: 4
 
-    load_weight:
+    load_weight: './results/simple_population_dynamics/exp_13/models/model_19.h5'
+    #load_weight:
     multiprocessing: True
 
     # Reward Setting
     get_closer_reward: 0
+    comment: 'Without Id'
 
 

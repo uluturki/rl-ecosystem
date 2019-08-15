@@ -349,6 +349,8 @@ class DQN(nn.Module):
                 else:
                     batch_id, batch_view = self.process_view_with_emb_batch(view)
                     action = self.q_net(batch_view).max(1)[1].cpu().numpy()
+
+                print(action)
                 ids.extend(batch_id)
                 actions.extend(action)
                 action_batches.append(action)
