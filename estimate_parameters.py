@@ -6,6 +6,10 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from utils import plot_circle
 
+'''
+Estimate parameters for LV model
+'''
+
 
 lotka_code = """
 functions {

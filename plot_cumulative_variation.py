@@ -7,6 +7,10 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from utils import plot_cumulative_variation
 
+'''
+Plot the population dynamics for the exeperiment which aims at verifying whether agents are properly trained or not
+'''
+
 argparser = argparse.ArgumentParser()
 argparser.add_argument('--log_file', type=str)
 argparser.add_argument('--st', type=int, default=0)
