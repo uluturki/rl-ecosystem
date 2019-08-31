@@ -23,6 +23,13 @@ import torch.optim as optim
 import shutil
 from trainer import Trainer
 
+
+'''
+Scripts for testing environments
+'''
+
+
+
 argparser = argparse.ArgumentParser()
 
 argparser.add_argument('--model_file', type=str)

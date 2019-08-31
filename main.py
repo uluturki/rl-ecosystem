@@ -4,10 +4,7 @@ from attrdict import AttrDict
 import yaml
 
 from garl_gym.scenarios.simple_population_dynamics_ga import SimplePopulationDynamicsGA
-from garl_gym.scenarios.simple_population_dynamics_ga_action import SimplePopulationDynamicsGAAction
-from garl_gym.scenarios.simple_population_dynamics_ga_utility import SimplePopulationDynamicsGAUtility
 from garl_gym.scenarios.simple_population_dynamics import SimplePopulationDynamics
-from garl_gym.scenarios.simple_population_dynamics_rule_base import SimplePopulationDynamicsRuleBase
 from garl_gym.scenarios.complex_population_dynamics import ComplexPopulationDynamics
 from garl_gym.scenarios.genetic_population_dynamics import GeneticPopulationDynamics
 import matplotlib.pyplot as plt
@@ -48,10 +45,6 @@ def make_env(env_type, params):
         return SimplePopulationDynamicsGA(params)
     elif env_type == 'simple_population_dynamics':
         return SimplePopulationDynamics(params)
-    elif env_type == 'simple_population_dynamics_ga_utility':
-        return SimplePopulationDynamicsGAUtility(params)
-    elif env_type == 'simple_population_dynamics_ga_action':
-        return SimplePopulationDynamicsGAAction(params)
     elif env_type == 'complex_population_dynamics':
         return ComplexPopulationDynamics(params)
     elif env_type == 'genetic_population_dynamics':
@@ -157,20 +150,6 @@ def dqn_two_agents(env_type, experiment_id, config_file):
 
     trainer = Trainer(params, env)
     trainer.train(agent_predator, agent_prey)
-
-@main.command(name='rule_base')
-@click.option('--experiment_id', help='experiment id', required=True, type=int)
-@click.option('--config_file', help='config file', type=str, default='./configs/config.yaml')
-def rule_base(experiment_id, config_file):
-    params = read_yaml(config_file)
-    params['model_type'] = 'rule_base'
-    params['experiment_id'] = experiment_id
-    save_config(params, experiment_id)
-
-    env = SimplePopulationDynamicsRuleBase(params)
-    env.make_world(wall_prob=params.wall_prob, wall_seed=20, food_prob=0)
-
-    run_rulebase(env, params)
 
 
 @main.command(name='drqn')
