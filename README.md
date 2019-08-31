@@ -1,5 +1,7 @@
 # rl-ecosystem
 
+Implementation for the master thesis **Evolution of a Complex predator-PreyEcosystem on Large-scale Multi-AgentDeep Reinforcement Learning**
+
 ## How to Use
 
 ### Training
