@@ -8,6 +8,19 @@ from torch.autograd import Variable
 
 
 class DRQNet(nn.Module):
+    '''
+    Neural network for deep recurrent Q-learning
+
+    Args:
+        input_dim: Input dimension
+        lstm_input: Size of LSTM input
+        lstm_out: Size of LSTM output
+        hidden_dims: Dimension of hidden layers
+        num_actions: Number of actions
+        agent_emb_dim: Dimension size of ID
+        agent_emb_hidden: Dimension of the embedded vector of ID
+    '''
+
     def __init__(self, input_dim, lstm_input, lstm_out, hidden_dims=[32, 64, 128], num_actions=4, agent_emb_dim=5, agent_emb_hidden=16):
         super(DRQNet, self).__init__()
         self.num_actions = num_actions
@@ -36,6 +49,14 @@ class DRQNet(nn.Module):
 
 
     def forward(self, x, id_, hidden_state, cell_state):
+        '''
+        Args:
+            x: input
+            id_: id
+            hidden_state: Hidden State for LSTM
+            cell_state: Cell state for LSTM
+        '''
+
         batch_size = x.shape[0]
         t = torch.relu(self.conv1(x))
         t = torch.relu(self.conv2(t))
@@ -53,7 +74,10 @@ class DRQNet(nn.Module):
         qval = val_out.expand(batch_size,self.num_actions) + (adv_out - adv_out.mean(dim=1).unsqueeze(dim=1).expand(batch_size,self.num_actions))
         return qval, h_n,c_n
 
-    def init_hidden_states(self,batch_size):
+    def init_hidden_states(self, batch_size):
+        '''
+        Initialise hidden states
+        '''
         h = np.zeros((batch_size,256))
         c = np.zeros((batch_size,256))
         return h,c

@@ -7,6 +7,14 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 
 class QNet(nn.Module):
+    '''
+    Neural network for Deep Q-learning and Double Deep Q-learning
+
+    Args:
+        input_dim: Input dimension
+        hidden_dims: Dimension of hidden layers
+        num_actions: Number of actions
+    '''
     def __init__(self, input_dim, hidden_dims=[32, 32], num_actions=4):
         super(QNet, self).__init__()
         self.num_actions = num_actions
@@ -49,6 +57,14 @@ class QNet(nn.Module):
 #        return t
 
 class QNetConv(nn.Module):
+    '''
+    Neural network for Deep Q-learning and Double Deep Q-learning. Hidden layers are convolutional layers.
+
+    Args:
+        input_dim: Input dimension
+        hidden_dims: Dimension of hidden layers
+        num_actions: Number of actions
+    '''
     def __init__(self, input_dim, hidden_dims=[32, 32], num_actions=4, agent_emb_dim=5, agent_emb_hidden=16):
         super(QNetConvWithID, self).__init__()
         self.num_actions = num_actions
