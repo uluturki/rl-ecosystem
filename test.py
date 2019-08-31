@@ -15,8 +15,6 @@ import shutil
 import argparse
 from attrdict import AttrDict
 from garl_gym.scenarios.simple_population_dynamics_ga import SimplePopulationDynamicsGA
-from garl_gym.scenarios.simple_population_dynamics_ga_action import SimplePopulationDynamicsGAAction
-from garl_gym.scenarios.simple_population_dynamics_ga_utility import SimplePopulationDynamicsGAUtility
 from garl_gym.scenarios.simple_population_dynamics import SimplePopulationDynamics
 from garl_gym.scenarios.complex_population_dynamics import ComplexPopulationDynamics
 from garl_gym.scenarios.genetic_population_dynamics import GeneticPopulationDynamics
@@ -52,10 +50,6 @@ def make_env(env_type, params):
         return SimplePopulationDynamicsGA(params)
     elif env_type == 'simple_population_dynamics':
         return SimplePopulationDynamics(params)
-    elif env_type == 'simple_population_dynamics_ga_utility':
-        return SimplePopulationDynamicsGAUtility(params)
-    elif env_type == 'simple_population_dynamics_ga_action':
-        return SimplePopulationDynamicsGAAction(params)
     elif env_type == 'complex_population_dynamics':
         return ComplexPopulationDynamics(params)
     elif env_type == 'genetic_population_dynamics':
