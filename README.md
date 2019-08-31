@@ -1,4 +1,4 @@
-# rl-ecosystem
+# The large-scale deep multi-agent reinforcement learning for predator-prey ecosystem
 
 Implementation for the master thesis **Evolution of a Complex predator-PreyEcosystem on Large-scale Multi-AgentDeep Reinforcement Learning**
 
