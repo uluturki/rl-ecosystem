@@ -383,6 +383,7 @@ class DRQN(nn.Module):
        #     shutil.rmtree(log_dir)
        #     os.makedirs(log_dir)
         log = open(os.path.join(log_dir, 'log.txt'), 'w')
+        log_local = open(os.path.join(log_dir, 'log_division.txt'), 'w')
 
         timesteps = 0
 
@@ -486,6 +487,8 @@ class DRQN(nn.Module):
 
             log.write(info+'\n')
             log.flush()
+
+
 
             if len(self.env.predators) < 1 or len(self.env.preys) < 1 or len(self.env.predators) > 20000 or len(self.env.preys) > 20000:
                 log.close()
@@ -1029,3 +1032,15 @@ class DRQN(nn.Module):
 
     def take_random_action(self, agents):
         actions = np.random.randint(self.num_actions, len(agents))
+
+
+
+    def count_agents_in_local_region(self, region_size=50):
+        n = self.env.h // region_size
+        for i in range(n):
+            local = self.env.map[i*region_size:(i+1)*region_size, i*region_size:(i+1)*region_size]
+            agent_indices = np.where(local > 0)
+
+
+
+
