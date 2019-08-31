@@ -6,9 +6,13 @@ import cv2
 from cv2 import imread, VideoWriter
 from utils import make_video
 
+'''
+Generate a movie from images
+'''
+
 argparser = argparse.ArgumentParser()
 
-argparser.add_argument('--img_dir', type=str)
+argparser.add_argument('--img_dir', type=str, help='image dir', required=True)
 
 args = argparser.parse_args()
 
