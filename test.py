@@ -80,6 +80,16 @@ def read_yaml(path):
     return AttrDict(yaml.load(f)).parameters
 
 def ddqn(params, env_type, experiment_id, test_id):
+    '''
+    Double Deep Q-learning
+
+    Args:
+        params: Dictionary of settings
+        env_type: Evnrionment Type
+        experiment_id: Id for the experiment
+        test_id: Id for the test
+    '''
+
     params['experiment_id'] = experiment_id
     params['test_id'] = test_id
     env = make_env(env_type, params)
@@ -93,6 +103,15 @@ def ddqn(params, env_type, experiment_id, test_id):
     agent.test()
 
 def dqn(params, env_type, experiment_id, test_id):
+    '''
+    Deep Q-learning
+
+    Args:
+        params: Dictionary of settings
+        env_type: Evnrionment Type
+        experiment_id: Id for the experiment
+        test_id: Id for the test
+    '''
     params['experiment_id'] = experiment_id
     params['test_id'] = test_id
 
@@ -107,6 +126,15 @@ def dqn(params, env_type, experiment_id, test_id):
     agent.test()
 
 def drqn(params, env_type, experiment_id, test_id):
+    '''
+    Deep Q-learning
+
+    Args:
+        params: Dictionary of settings
+        env_type: Evnrionment Type
+        experiment_id: Id for the experiment
+        test_id: Id for the test
+    '''
     params['experiment_id'] = experiment_id
     params['test_id'] = test_id
 

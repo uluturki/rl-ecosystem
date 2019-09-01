@@ -77,6 +77,15 @@ def main():
 @click.option('--experiment_id', help='Experiment Id', required=True, type=int)
 @click.option('--config_file', help='config file', type=str, default='./configs/config.yaml')
 def ddqn(env_type, experiment_id, config_file):
+    '''
+    Double Deep Q-learning
+
+    Args:
+        env_type: Evnrionment Type
+        experiment_id: Id for the experiment
+        config_file: Path of the config file
+    '''
+
     params = read_yaml(config_file)
     params['model_type'] = 'DDQN'
     params['env_type'] = env_type
@@ -105,6 +114,15 @@ def ddqn(env_type, experiment_id, config_file):
 @click.option('--experiment_id', help='Experiment Id', required=True, type=int)
 @click.option('--config_file', help='config file', type=str, default='./configs/config.yaml')
 def dqn(env_type, experiment_id, config_file):
+    '''
+    Deep Q-learning
+
+    Args:
+        env_type: Evnrionment Type
+        experiment_id: Id for the experiment
+        config_file: Path of the config file
+    '''
+
     params = read_yaml(config_file)
     params['model_type'] = 'DQN'
     params['env_type'] = env_type
@@ -124,9 +142,6 @@ def dqn(env_type, experiment_id, config_file):
                 params.random_step, params.min_greedy, params.max_greedy, params.greedy_step,
                 params.update_period)
 
-@main.command(name='dqn_two_agents')
-@click.option('--env_type', required=True)
-@click.option('--experiment_id', help='Experiment Id', required=True, type=int)
 @click.option('--config_file', help='config file', type=str, default='./configs/config.yaml')
 def dqn_two_agents(env_type, experiment_id, config_file):
     params = read_yaml(config_file)
@@ -157,6 +172,15 @@ def dqn_two_agents(env_type, experiment_id, config_file):
 @click.option('--experiment_id', help='Experiment Id', required=True, type=int)
 @click.option('--config_file', help='config file', type=str, default='./configs/config.yaml')
 def drqn(env_type, experiment_id, config_file):
+    '''
+    Deep Recurrent Q-learning
+
+    Args:
+        env_type: Evnrionment Type
+        experiment_id: Id for the experiment
+        config_file: Path of the config file
+    '''
+
     params = read_yaml(config_file)
     params['model_type'] = 'DRQN'
     params['env_type'] = env_type

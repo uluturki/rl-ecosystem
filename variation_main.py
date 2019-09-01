@@ -4,11 +4,10 @@ from attrdict import AttrDict
 import yaml
 
 from garl_gym.scenarios.simple_population_dynamics_ga import SimplePopulationDynamicsGA
-from garl_gym.scenarios.simple_population_dynamics_ga_action import SimplePopulationDynamicsGAAction
-from garl_gym.scenarios.simple_population_dynamics_ga_utility import SimplePopulationDynamicsGAUtility
 from garl_gym.scenarios.simple_population_dynamics import SimplePopulationDynamics
 from garl_gym.scenarios.simple_population_dynamics_rule_base import SimplePopulationDynamicsRuleBase
 from garl_gym.scenarios.complex_population_dynamics import ComplexPopulationDynamics
+from garl_gym.scenarios.genetic_population_dynamics import GeneticopulationDynamics
 import matplotlib.pyplot as plt
 import seaborn as sns
 from models.QNet import QNet, QNetConv
@@ -47,12 +46,10 @@ def make_env(env_type, params):
         return SimplePopulationDynamicsGA(params)
     elif env_type == 'simple_population_dynamics':
         return SimplePopulationDynamics(params)
-    elif env_type == 'simple_population_dynamics_ga_utility':
-        return SimplePopulationDynamicsGAUtility(params)
-    elif env_type == 'simple_population_dynamics_ga_action':
-        return SimplePopulationDynamicsGAAction(params)
     elif env_type == 'complex_population_dynamics':
         return ComplexPopulationDynamics(params)
+    elif env_type == 'genetic_population_dynamics':
+        return GeneticPopulationDynamics(params)
 
 def create_nn(params):
     if params['load_weight'] is None:
@@ -178,6 +175,15 @@ def rule_base(experiment_id, config_file):
 @click.option('--pretrained_weight', type=str, required=True)
 @click.option('--variation_id', type=int, required=True)
 def drqn(env_type, experiment_id, config_file, pretrained_weight, variation_id):
+    '''
+    Args:
+        env_type: Evnrionment Type
+        experiment_id: Id for the experiment
+        config_file: Path of the config file
+        pretrained_weight: Path for the pretrained weight
+        variation_id: Id for the variation experiment
+    '''
+
     params = read_yaml(config_file)
     params['model_type'] = 'DRQN'
     params['env_type'] = env_type
