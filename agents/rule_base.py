@@ -1,7 +1,7 @@
 import os, sys
 
 import numpy as np
-from garl_gym.scenarios.simple_population_dynamics_rule_base import *
+# from garl_gym.scenarios.simple_population_dynamics_rule_base import *
 from tqdm import tqdm
 
 
