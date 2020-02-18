@@ -61,8 +61,8 @@ parameters:
 
     cpu_cores: 4
 
-    load_weight: './results/simple_population_dynamics/exp_13/models/model_19.h5'
-    #load_weight:
+    #load_weight: './results/simple_population_dynamics/exp_13/models/model_19.h5'
+    load_weight:
     multiprocessing: True
 
     # Reward Setting
