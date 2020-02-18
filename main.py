@@ -24,7 +24,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import shutil
-from tmp import Trainer
+from tmp.trainer import Trainer
 
 def read_yaml(path):
     f = open(path, 'r')
