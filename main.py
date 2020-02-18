@@ -188,7 +188,7 @@ def drqn(env_type, experiment_id, config_file):
 
     save_config(params, experiment_id)
     env = make_env(env_type, params)
-    env.make_world(wall_prob=params.wall_prob, food_prob=0)
+    env.make_world(wall_prob=params.wall_prob)  # , food_prob=0
     q_net = create_nn(params)
     agent = DRQN(params,
                 env,
